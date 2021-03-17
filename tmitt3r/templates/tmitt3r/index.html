@@ -1,0 +1,8 @@
+{% extends 'tmitt3r/base.html' %}
+{% block content %}
+<h1>Tmitt3r Top</h1>
+<ul>
+    <li><a href="{% url 'accounts:signup' %}">Sign Up</a></li>
+    <li><a href="{% url 'accounts:login' %}">Login</a></li>
+</ul>
+{% endblock %}
