@@ -131,4 +131,4 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Login, Logout
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/home/'
-LOGOUT_REDIRECT_URL = '/login/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'

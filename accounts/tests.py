@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.conf import settings
-import sys
 
 
 sample_password = 'SamplePassword'
@@ -77,3 +76,15 @@ class LoginViewTests(TestCase):
         data['csrfmiddlewaretoken'] = token
         response = self.client.post(self.url, data)
         self.assertRedirects(response, settings.LOGIN_REDIRECT_URL)
+
+
+class LogoutViewTests(TestCase):
+    def setUp(self):
+        self.username = 'LogoutTestUser'
+        self.password = sample_password
+        User.objects.create_user(username=self.username, password=self.password)
+    
+    def test_user_logout(self):
+        self.client.login(username=self.username, password=self.password)
+        response = self.client.get(reverse('accounts:logout'))
+        self.assertRedirects(response, settings.LOGOUT_REDIRECT_URL)
