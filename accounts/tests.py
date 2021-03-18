@@ -47,4 +47,3 @@ class SignUpViewTests(TestCase):
         response = self.client.post(url, data=data)
         self.assertRedirects(response, reverse('tmitt3r:home'))
         self.assertTrue(User.objects.filter(username='Ken').exists())
-    

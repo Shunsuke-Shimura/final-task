@@ -14,7 +14,7 @@ from pathlib import Path
 # import critical settings
 # local.settings.py includes "SECRET_KEY"
 try:
-    from .local_settings import *
+    from . import local_settings as _
 except ImportError:
     pass
 
