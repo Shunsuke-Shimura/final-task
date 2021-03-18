@@ -15,9 +15,5 @@ class SignUpView(FormView):
         return redirect(self.get_success_url())
 
 
-
-def login(request):
-    return HttpResponse("Login page.")
-
 def logout(request):
     return HttpResponse("Logout page.")

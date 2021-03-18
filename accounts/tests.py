@@ -50,6 +50,7 @@ class SignUpViewTests(TestCase):
         self.assertRedirects(response, reverse('accounts:login'))
         self.assertTrue(User.objects.filter(username='Ken').exists())
 
+
 class LoginViewTests(TestCase):
     def setUp(self):
         self.username = 'Sample2'
@@ -65,7 +66,6 @@ class LoginViewTests(TestCase):
         response = self.client.get(self.url)
         self.assertTrue(isinstance(response.context['form'], AuthenticationForm))
 
-
     def test_user_login_post(self):
         """
         適切なcsrfトークンを持ち、正しい情報を持った
@@ -78,6 +78,3 @@ class LoginViewTests(TestCase):
         data['csrfmiddlewaretoken'] = token
         response = self.client.post(self.url, data)
         self.assertRedirects(response, settings.LOGIN_REDIRECT_URL)
-        
-        
-   
