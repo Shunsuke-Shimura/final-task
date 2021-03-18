@@ -7,12 +7,13 @@ from django.urls import reverse_lazy
 
 class SignUpView(FormView):
     template_name = 'accounts/signup.html'
-    success_url = reverse_lazy('tmitt3r:home')
+    success_url = reverse_lazy('accounts:login')
     form_class = UserCreationForm
 
     def form_valid(self, form):
         form.save()
         return redirect(self.get_success_url())
+
 
 
 def login(request):
