@@ -12,7 +12,6 @@ def create_userdata(username, password=sample_password):
     return {'username': username, 'password1': password, 'password2': password}
 
 
-    
 class UserCreationFormTests(TestCase):
     def test_username_clean_success(self):
         """
