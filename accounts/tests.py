@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.conf import settings
-import sys
 
 
 sample_password = 'SamplePassword'
