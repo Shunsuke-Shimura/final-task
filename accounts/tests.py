@@ -87,4 +87,4 @@ class LogoutViewTests(TestCase):
     def test_user_logout(self):
         self.client.login(username=self.username, password=self.password)
         response = self.client.get(reverse('accounts:logout'))
-        self.assertRedirects(response, settings.LOGOUT_REDIRECT_URL)
+        self.assertRedirects(response, reverse(settings.LOGOUT_REDIRECT_URL))
