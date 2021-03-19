@@ -76,4 +76,4 @@ class LoginViewTests(TestCase):
         data = self.userdata
         data['csrfmiddlewaretoken'] = token
         response = self.client.post(self.url, data)
-        self.assertRedirects(response, settings.LOGIN_REDIRECT_URL)
+        self.assertRedirects(response, reverse(settings.LOGIN_REDIRECT_URL))
