@@ -40,12 +40,12 @@ class SignUpViewTests(TestCase):
     def test_add_User(self):
         """
         SignUpViewクラスはSignUpが成功すると、tmitt3r:homeに
-        リダイレクトし、Userにそのアカウントが追加される。
+        ログイン状態でリダイレクトし、Userにそのアカウントが追加される。
         """
         url = reverse('accounts:signup')
         data = create_userdata('Ken')
         response = self.client.post(url, data=data)
-        self.assertRedirects(response, reverse('accounts:login'))
+        self.assertRedirects(response, reverse('tmitt3r:home'))
         self.assertTrue(User.objects.filter(username='Ken').exists())
 
 
