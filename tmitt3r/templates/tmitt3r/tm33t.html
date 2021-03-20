@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Tm33t{% endblock %}
+{% block content %}
+<h1>Tm33t!</h1>
+<form action="{% url 'tmitt3r:tm33t' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+</form>
+{% endblock %}
