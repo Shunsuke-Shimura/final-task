@@ -1,5 +1,5 @@
+from django.test import TestCase, override_settings
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.urls import reverse
@@ -9,6 +9,16 @@ from django.conf import settings
 sample_password = 'SamplePassword'
 def create_userdata(username, password=sample_password):
     return {'username': username, 'password1': password, 'password2': password}
+
+
+no_csrf_middleware = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
 
 
 class UserCreationFormTests(TestCase):
@@ -64,17 +74,15 @@ class LoginViewTests(TestCase):
         response = self.client.get(self.url)
         self.assertTrue(isinstance(response.context['form'], AuthenticationForm))
 
+    @override_settings(MIDDLEWARE=no_csrf_middleware)
     def test_user_login_post(self):
         """
-        適切なcsrfトークンを持ち、正しい情報を持った
-        postメソッドに対しては、認証された後nextが与えられていなければ
+        正しい情報を持ったpostメソッドに対しては、
+        認証された後nextが与えられていなければ、
         setting.LOGIN_REDIRECT_URLにリダイレクトされる。
         """
-        response = self.client.get(self.url)
-        token = str(response.context['csrf_token'])
         data = self.userdata
-        data['csrfmiddlewaretoken'] = token
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.url, data=self.userdata)
         self.assertRedirects(response, reverse(settings.LOGIN_REDIRECT_URL))
 
 

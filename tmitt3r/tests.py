@@ -13,6 +13,13 @@ no_csrf_middleware = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+class Tm33tModelTests(TestCase):
+    def test_str_conversion(self):
+        user = User.objects.create_user(username='Tm33tModelTest')
+        text = """Very very very very very very very very very very very very very long text."""
+        tm33t = Tm33t.objects.create(poster=user, content=text)
+        self.assertEqual(str(tm33t), text[:20])
+
 # Create your tests here.
 @override_settings(MIDDLEWARE=no_csrf_middleware)
 class Tm33tViewTests(TestCase):
@@ -38,4 +45,4 @@ class Tm33tViewTests(TestCase):
                         ).get(
                             post_time__gte=time
                         )
-        self.assertEqual(str(tm33t), text)
+        self.assertEqual(tm33t.content, text)
