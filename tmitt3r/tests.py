@@ -23,6 +23,10 @@ class Tm33tModelTests(TestCase):
         self.assertEqual(str(tm33t), text[:20])
 
 
+class FollowsTests(TestCase):
+    pass
+
+
 class HomeViewTests(TestCase):
     def setUp(self):
         username = 'HomeViewTestClient'
