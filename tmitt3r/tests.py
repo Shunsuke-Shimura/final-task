@@ -1,8 +1,9 @@
 from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
+from django.db.utils import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
-from .models import Tm33t
+from .models import Tm33t, Follows
 import time
 
 no_csrf_middleware = [
@@ -24,7 +25,17 @@ class Tm33tModelTests(TestCase):
 
 
 class FollowsTests(TestCase):
-    pass
+    def setUp(self):
+        self.u1 = User.objects.create_user(username='FollowsTest1')
+        self.u2 = User.objects.create_user(username='FollowsTest2')
+    def test_follower_folloed_unique(self):
+        """
+        actorとfollowed_userに設定されたユーザーは
+        データベースでユニークであり、IntegrityErrorを発生する。
+        """
+        Follows.objects.create(actor=self.u1, followed_user=self.u2)
+        with self.assertRaises(IntegrityError):
+            Follows.objects.create(actor=self.u1, followed_user=self.u2)
 
 
 class HomeViewTests(TestCase):
