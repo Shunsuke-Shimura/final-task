@@ -3,8 +3,21 @@
 {% block title %}Tmitt3r Home{% endblock %}
 
 {% block content %}
+<header>
+    <ul>
+        <li><a href="{% url 'tmitt3r:tm33t' %}">Tm33t!</a></li>
+        <li><a href="{% url 'accounts:logout' %}">Log Out</a></li>
+    </ul>
+</header>
+
 <h1>Tmitt3r Home</h1>
-<ul>
-    <li><a href="{% url 'accounts:logout' %}">Log Out</a></li>
-</ul>
+{% for tm33t in latest_tm33t_list %}
+    <div>
+        <p>{{ tm33t.content }}</p>
+        <p>Tm33ted : {{ tm33t.post_time }}</p>
+        <p>By : @{{ user.username }}</p>
+    </div>
+{% empty %}
+    <p>You haven't tm33ted yet.</p>
+{% endfor %}
 {% endblock %}
