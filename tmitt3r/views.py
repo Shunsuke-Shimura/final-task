@@ -29,5 +29,4 @@ class Tm33tView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.poster = self.request.user
-        form.instance.post_time = timezone.now()
         return super().form_valid(form)
