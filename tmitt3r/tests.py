@@ -32,7 +32,6 @@ class HomeViewTests(TestCase):
         self.client.login(username=username, password=password)
         self.text_list = []
         for i in range(20):
-            now = timezone.now()
             text = 'This is HomeViewTest Tm33t text No.{}.'.format(i)
             Tm33t.objects.create(poster=self.user, content=text)
             self.text_list.append(text)
@@ -48,8 +47,7 @@ class HomeViewTests(TestCase):
         res = self.client.get(reverse('tmitt3r:home'))
         queryset = res.context['latest_tm33t_list']
         for i in range(10):
-            self.assertEqual(queryset[i].content, self.text_list[i])
-            
+            self.assertEqual(queryset[i].content, self.text_list[i])    
 
 
 @override_settings(MIDDLEWARE=no_csrf_middleware)
