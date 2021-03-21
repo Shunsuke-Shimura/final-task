@@ -2,8 +2,9 @@
 {% block title %}Tm33t{% endblock %}
 {% block content %}
 <h1>Tm33t!</h1>
-<form action="{% url 'tmitt3r:tm33t' %}">
+<form action="{% url 'tmitt3r:tm33t' %}" method="POST">
     {% csrf_token %}
     {{ form.as_p }}
+    <input type="submit" value="Tm33t!">
 </form>
 {% endblock %}
