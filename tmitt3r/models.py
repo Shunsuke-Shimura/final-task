@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import fields
 
 # Create your models here.
 class Tm33t(models.Model):
@@ -13,3 +14,8 @@ class Tm33t(models.Model):
 class FollowRelationship(models.Model):
     actor = models.ForeignKey(User, related_name="actor", on_delete=models.CASCADE)
     followed_user = models.ForeignKey(User, related_name="followed_user", on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['actor', 'followed_user'], name='unique_follow')
+        ]
