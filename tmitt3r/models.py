@@ -9,3 +9,7 @@ class Tm33t(models.Model):
 
     def __str__(self):
         return self.content[:20]
+
+class FollowRelationship(models.Model):
+    actor = models.ForeignKey(User, related_name="actor", on_delete=models.CASCADE)
+    followed_user = models.ForeignKey(User, related_name="followed_user", on_delete=models.CASCADE)
