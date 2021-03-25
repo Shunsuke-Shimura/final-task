@@ -1,12 +1,13 @@
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
 from django.views.generic.edit import FormView
 from django.views.generic.detail import DetailView
 from .models import Follows
+from tmitt3r.models import Tm33t
 
 
 class SignUpView(FormView):
@@ -24,16 +25,36 @@ class SignUpView(FormView):
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
-    template_name = 'tmitt3r/profile.html'
-    model = User
+    template_name = 'accounts/profile.html'
     context_object_name = 'profiled_user'
+    http_method_names = ['get', 'post']
+    model = User
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['follow_num'] = Follows.objects.filter(actor=self.object).count()
         context['follower_num'] = Follows.objects.filter(followed_user=self.object).count()
+        context['latest_tm33t_list'] = Tm33t.objects.filter(poster=self.object).order_by('-post_time')[:10]
         if self.object != self.request.user:
             context['is_others'] = True
             if Follows.objects.filter(actor=self.request.user, followed_user=self.object).exists():
                 context['following'] = True
         return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        try:
+            if request.POST['follows'] == 'follow':
+                Follows.objects.create(actor=request.user, followed_user=self.object)
+            elif request.POST['follows'] == 'unfollow':
+                Follows.objects.get(actor=request.user, followed_user=self.object).delete()
+            else:
+                raise Exception
+        except:
+            context = self.get_context_data()
+            context['follows_invalid_msg'] = "ポストされたデータが不適切です。"
+        else:
+            context = self.get_context_data()
+            context['follows_message'] = "{}を{}しました。".format(self.object.get_username(), request.POST['follows'])
+        finally:
+            return self.render_to_response(context)

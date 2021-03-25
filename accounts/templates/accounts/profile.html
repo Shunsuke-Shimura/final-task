@@ -9,7 +9,7 @@
     <p>follower: {{ follower_num }}</p>
     {% if is_others %}
     <p>
-        <form action="{% url 'tmitt3r:profile' profiled_user.pk %}" method="POST">
+        <form action="{% url 'accounts:profile' profiled_user.pk %}" method="POST">
             {% csrf_token %}
             {% if following %}
             <button type="submit" name="follows" value="unfollow">Unfollow</button>
@@ -22,11 +22,15 @@
 </div>
 <div>
     <h2>{{ profiled_user.get_username }}'s Tm33t</h2>
+    {% for tm33t in latest_tm33t_list %}
     <div>
         <p>{{ tm33t.content|linebreaksbr }}</p>
         <p>Tm33ted : {{ tm33t.post_time }}</p>
         <p>By : @{{ tm33t.poster.get_username }}</p>
     </div>
+    {% empty %}
+    <p>{{ profiled_user.get_username }} haven't tm33ted yet.</p>
+    {% endfor %}
 </div>
 
 {% endblock %}

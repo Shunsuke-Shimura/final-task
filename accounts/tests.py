@@ -126,7 +126,7 @@ class UserDetailViewTests(TestCase):
         self.user = User.objects.create_user(username=self.username, password=self.password)
         self.tar_user = User.objects.create_user(username='UDVTest')
         self.client.login(username=self.username, password=self.password)
-        self.url = reverse('tmitt3r:profile', args=[self.tar_user.pk])
+        self.url = reverse('accounts:profile', args=[self.tar_user.pk])
 
     def test_follow_post(self):
         """
@@ -135,7 +135,7 @@ class UserDetailViewTests(TestCase):
         フォローする。
         """
         self.client.post(self.url, data=dict(follows='follow'))
-        self.assertTrue(Follows.objects.get(actor=self.user, followed_user=self.tar_user).exists())
+        self.assertTrue(Follows.objects.filter(actor=self.user, followed_user=self.tar_user).exists())
 
     def test_unfollow_post(self):
         """
@@ -144,4 +144,4 @@ class UserDetailViewTests(TestCase):
         アンフォローする。
         """
         self.client.post(self.url, data=dict(follows='unfollow'))
-        self.assertEqual(Follows.objects.filter(actor=self.user, followed_user=self.tar_user), [])
+        self.assertFalse(Follows.objects.filter(actor=self.user, followed_user=self.tar_user).exists())
