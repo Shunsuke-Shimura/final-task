@@ -1,9 +1,8 @@
 from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
-from django.db.utils import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
-from .models import Tm33t, Follows
+from .models import Tm33t
 import time
 
 no_csrf_middleware = [
@@ -22,24 +21,6 @@ class Tm33tModelTests(TestCase):
         text = """Very very very very very very very very very very very very very long text."""
         tm33t = Tm33t.objects.create(poster=user, content=text)
         self.assertEqual(str(tm33t), text[:20])
-
-
-class FollowsModelTests(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(username='FollowsModelTest')
-        self.u1 = User.objects.create_user(username='FollowsModelTest1')
-        self.u2 = User.objects.create_user(username='FollowsModelTest2')
-    def test_follower_folloed_unique(self):
-        """
-        actorとfollowed_userに設定されたユーザーは
-        データベースでユニークであり、IntegrityErrorを発生するが、
-        どちらかが異なれば処理は成功する。
-        """
-        Follows.objects.create(actor=self.user, followed_user=self.u1)
-        Follows.objects.create(actor=self.user, followed_user=self.u2)
-        self.assertTrue(Follows.objects.filter(actor=self.user, followed_user=self.u2).exists())
-        with self.assertRaises(IntegrityError):
-            Follows.objects.create(actor=self.user, followed_user=self.u1)
 
 
 class HomeViewTests(TestCase):
@@ -94,31 +75,3 @@ class Tm33tViewTests(TestCase):
                             post_time__gte=time
                         )
         self.assertEqual(tm33t.content, text)
-
-@override_settings(MIDDLEWARE=no_csrf_middleware)
-class UserDetailViewTests(TestCase):
-    def setUp(self):
-        self.username = 'UserDetailViewTest'
-        self.password = 'SamplePassword'
-        self.user = User.objects.create_user(username=self.username, password=self.password)
-        self.tar_user = User.objects.create_user(username='UDVTest')
-        self.client.login(username=self.username, password=self.password)
-        self.url = reverse('tmitt3r:profile', args=[self.tar_user.pk])
-
-    def test_follow_post(self):
-        """
-        POSTメソッドにおいてfollows=followなら、
-        ログインユーザーはそのプロフィールのユーザーを
-        フォローする。
-        """
-        self.client.post(self.url, data=dict(follows='follow'))
-        self.assertTrue(Follows.objects.get(actor=self.user, followed_user=self.tar_user).exists())
-
-    def test_unfollow_post(self):
-        """
-        POSTメソッドにおいてfollows=unfollowなら、
-        ログインユーザーはそのプロフィールのユーザーを
-        アンフォローする。
-        """
-        self.client.post(self.url, data=dict(follows='unfollow'))
-        self.assertEqual(Follows.objects.filter(actor=self.user, followed_user=self.tar_user), [])

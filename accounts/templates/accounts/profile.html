@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}{{ profiled_user.get_username }}'s Profile{% endblock %}
+
+{% block content %}
+<h1>{{ profiled_user.get_username }}'s Profile</h1>
+<div>
+    <h2>Data</h2>
+    <p>follows: {{ follow_num }}</p>
+    <p>follower: {{ follower_num }}</p>
+    {% if is_others %}
+    <p>
+        <form action="{% url 'tmitt3r:profile' profiled_user.pk %}" method="POST">
+            {% csrf_token %}
+            {% if following %}
+            <button type="submit" name="follows" value="unfollow">Unfollow</button>
+            {% else %}
+            <button type="submit" name="follows" value="follow">Follow</button>
+            {% endif %}
+        </form>
+    </p>
+    {% endif %}
+</div>
+<div>
+    <h2>{{ profiled_user.get_username }}'s Tm33t</h2>
+    <div>
+        <p>{{ tm33t.content|linebreaksbr }}</p>
+        <p>Tm33ted : {{ tm33t.post_time }}</p>
+        <p>By : @{{ tm33t.poster.get_username }}</p>
+    </div>
+</div>
+
+{% endblock %}
