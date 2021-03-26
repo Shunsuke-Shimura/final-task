@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import fields
 
 class Tm33t(models.Model):
     poster = models.ForeignKey(User, on_delete=models.CASCADE)
