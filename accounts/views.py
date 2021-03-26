@@ -34,7 +34,7 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['follow_num'] = Follows.objects.filter(actor=self.object).count()
         context['follower_num'] = Follows.objects.filter(followed_user=self.object).count()
-        context['latest_tm33t_list'] = Tm33t.objects.filter(poster=self.object).order_by('-post_time')[:10]
+        context['latest_tm33t_list'] = self.object.tm33ts.order_by('-post_time')[:10]
         if self.object != self.request.user:
             context['is_others'] = True
             if Follows.objects.filter(actor=self.request.user, followed_user=self.object).exists():
