@@ -6,7 +6,7 @@
 <header>
     <ul>
         <li><a href="{% url 'tmitt3r:tm33t' %}">Tm33t!</a></li>
-        <li><a href="{% url 'accounts:logout' %}">Log Out</a></li>
+        <li><a href="{% url 'accounts:logout' %}">Logout</a></li>
     </ul>
 </header>
 
@@ -15,7 +15,7 @@
     <div>
         <p>{{ tm33t.content|linebreaksbr }}</p>
         <p>Tm33ted : {{ tm33t.post_time }}</p>
-        <p>By : @{{ tm33t.poster.get_username }}</p>
+        <p>By : @{{ tm33t.poster }}</p>
     </div>
 {% empty %}
     <p>You haven't tm33ted yet.</p>
