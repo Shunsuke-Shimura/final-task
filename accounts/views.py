@@ -7,7 +7,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import FormView
 from django.views.generic.detail import DetailView
 from .models import Follows
-from tmitt3r.models import Tm33t
 
 
 class SignUpView(FormView):
