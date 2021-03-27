@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import FormView
 from django.views.generic.detail import DetailView
 from .models import Follows
+from .forms import FollowForm, UnfollowForm
 
 
 class SignUpView(FormView):
@@ -26,7 +27,6 @@ class SignUpView(FormView):
 class UserDetailView(LoginRequiredMixin, DetailView):
     template_name = 'accounts/profile.html'
     context_object_name = 'profiled_user'
-    http_method_names = ['get', 'post']
     model = User
     
     def get_context_data(self, **kwargs):
@@ -35,25 +35,18 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         context['follower_num'] = Follows.objects.filter(followed_user=self.object).count()
         context['latest_tm33t_list'] = self.object.tm33ts.order_by('-post_time')[:10]
         if self.object != self.request.user:
-            context['is_others'] = True
             if Follows.objects.filter(actor=self.request.user, followed_user=self.object).exists():
-                context['following'] = True
+                context['following_state'] = 'following'
+            else:
+                context['following_state'] = 'unfollowing'
         return context
 
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        try:
-            if request.POST['follows'] == 'follow':
-                Follows.objects.create(actor=request.user, followed_user=self.object)
-            elif request.POST['follows'] == 'unfollow':
-                Follows.objects.get(actor=request.user, followed_user=self.object).delete()
-            else:
-                raise Exception
-        except:
-            context = self.get_context_data()
-            context['follows_invalid_msg'] = "ポストされたデータが不適切です。"
-        else:
-            context = self.get_context_data()
-            context['follows_message'] = "{}を{}しました。".format(self.object.get_username(), request.POST['follows'])
-        finally:
-            return self.render_to_response(context)
+
+class FollowView(FormView):
+    template_name = 'follow.html'
+    form_class = FollowForm
+
+
+class UnfollowView(FormView):
+    template_name = 'unfollow.html'
+    form_class = UnfollowForm
