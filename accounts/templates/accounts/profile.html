@@ -8,7 +8,7 @@
     <p>follows: {{ follow_num }}</p>
     <p>follower: {{ follower_num }}</p>
     {% if following_state %}
-    <p>following state : {{ following_state| }}</p>
+    <p>following state : {{ following_state|capfirst }}</p>
     {% endif %}
 </div>
 <div>
