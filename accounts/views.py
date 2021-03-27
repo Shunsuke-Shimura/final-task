@@ -1,5 +1,5 @@
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
@@ -43,10 +43,37 @@ class UserDetailView(LoginRequiredMixin, DetailView):
 
 
 class FollowView(FormView):
-    template_name = 'follow.html'
+    template_name = 'accounts/follow.html'
     form_class = FollowForm
+
+    def form_valid(self, form):
+        username = form.cleaned_data['username']
+        self.tar_user = User.objects.get(username=username)
+        if self.request.user == self.tar_user:
+            return self.form_invalid(form)
+        else:
+            try:
+                Follows.objects.create(actor=self.request.user, followed_user=self.tar_user)
+            except:
+                return self.form_invalid(form)
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse('accounts:profile', kwargs={'pk': self.tar_user.pk})
 
 
 class UnfollowView(FormView):
-    template_name = 'unfollow.html'
+    template_name = 'accounts/unfollow.html'
     form_class = UnfollowForm
+
+    def form_valid(self, form):
+        username = form.cleaned_data['username']
+        self.tar_user = User.objects.get(username=username)
+        if self.request.user == self.tar_user:
+            return self.form_invalid(form)
+        else:
+            Follows.objects.filter(actor=self.request.user, followed_user=self.tar_user).delete()
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse('accounts:profile', kwargs={'pk': self.tar_user.pk})

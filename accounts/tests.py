@@ -119,31 +119,32 @@ class FollowsModelTests(TestCase):
 
 
 @override_settings(MIDDLEWARE=no_csrf_middleware)
-class UserDetailViewTests(TestCase):
+class FollowsFeatureTests(TestCase):
     def setUp(self):
         self.username = 'UserDetailViewTest'
         self.password = 'SamplePassword'
         self.user = User.objects.create_user(username=self.username, password=self.password)
         self.tar_user = User.objects.create_user(username='UDVTest')
         self.client.login(username=self.username, password=self.password)
-        self.url = reverse('accounts:profile', args=[self.tar_user.pk])
+        self.follow_url = reverse('accounts:follow')
+        self.unfollow_url = reverse('accounts:unfollow')
 
     def test_follow_post(self):
         """
-        POSTメソッドにおいてfollows=followなら、
-        ログインユーザーはそのプロフィールのユーザーを
-        フォローする。
+        followページに有効なusernameを与えると
+        そのユーザーをフォローする
         """
-        self.client.post(self.url, data={'follows': 'follow'})
+        self.client.post(self.follow_url, data={'username': str(self.tar_user)})
         self.assertTrue(Follows.objects.filter(actor=self.user, followed_user=self.tar_user).exists())
 
     def test_unfollow_post(self):
         """
-        POSTメソッドにおいてfollows=unfollowなら、
-        ログインユーザーはそのプロフィールのユーザーを
-        アンフォローする。
+        unfollowページに有効なusernameを与えると
+        そのユーザーをアンフォローする。
         """
-        self.client.post(self.url, data={'follows': 'unfollow'})
+        if not Follows.objects.filter(actor=self.user, followed_user=self.tar_user).exists():
+            Follows.objects.create(actor=self.user, followed_user=self.tar_user)
+        self.client.post(self.unfollow_url, data={'username': str(self.tar_user)})
         self.assertFalse(Follows.objects.filter(actor=self.user, followed_user=self.tar_user).exists())
 
     def test_follow_yourself_fail(self):
@@ -151,5 +152,5 @@ class UserDetailViewTests(TestCase):
         自分自身をフォローすることはできない。
         """
         own_url = reverse('accounts:profile', kwargs={'pk': self.user.pk})
-        self.client.post(own_url, data={'follows': 'follow'})
+        self.client.post(own_url, data={'username': str(self.user)})
         self.assertFalse(Follows.objects.filter(actor=self.user, followed_user=self.user).exists())
