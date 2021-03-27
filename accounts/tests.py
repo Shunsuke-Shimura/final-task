@@ -134,7 +134,7 @@ class UserDetailViewTests(TestCase):
         ログインユーザーはそのプロフィールのユーザーを
         フォローする。
         """
-        self.client.post(self.url, data=dict(follows='follow'))
+        self.client.post(self.url, data={'follows': 'follow'})
         self.assertTrue(Follows.objects.filter(actor=self.user, followed_user=self.tar_user).exists())
 
     def test_unfollow_post(self):
@@ -143,5 +143,13 @@ class UserDetailViewTests(TestCase):
         ログインユーザーはそのプロフィールのユーザーを
         アンフォローする。
         """
-        self.client.post(self.url, data=dict(follows='unfollow'))
+        self.client.post(self.url, data={'follows': 'unfollow'})
         self.assertFalse(Follows.objects.filter(actor=self.user, followed_user=self.tar_user).exists())
+
+    def test_follow_yourself_fail(self):
+        """
+        自分自身をフォローすることはできない。
+        """
+        own_url = reverse('accounts:profile', kwargs={'pk': self.user.pk})
+        self.client.post(own_url, data={'follows': 'follow'})
+        self.assertFalse(Follows.objects.filter(actor=self.user, followed_user=self.user).exists())
