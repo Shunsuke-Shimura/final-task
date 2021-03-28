@@ -49,13 +49,11 @@ class FollowView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         username = form.cleaned_data['username']
         self.tar_user = User.objects.get(username=username)
-        if self.request.user == self.tar_user:
+        if self.request.user == self.tar_user or \
+            Follows.objects.filter(actor=self.request.user, followed_user=self.tar_user).exists():
             return self.form_invalid(form)
         else:
-            try:
-                Follows.objects.create(actor=self.request.user, followed_user=self.tar_user)
-            except:
-                return self.form_invalid(form)
+            Follows.objects.create(actor=self.request.user, followed_user=self.tar_user)
         return super().form_valid(form)
     
     def get_success_url(self):
