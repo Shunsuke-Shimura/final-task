@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Follow{% endblock %}
+
+{% block content %}
+<h1>Follow</h1>
+<form action="{% url 'accounts:follow' %}" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Follow">
+</form>
+{% endblock %}

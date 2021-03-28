@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView
-from django.utils import timezone
 from django.urls import reverse_lazy
 from .models import Tm33t
 
