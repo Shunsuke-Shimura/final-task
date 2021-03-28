@@ -42,7 +42,7 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class FollowView(FormView):
+class FollowView(LoginRequiredMixin, FormView):
     template_name = 'accounts/follow.html'
     form_class = FollowForm
 
@@ -62,7 +62,7 @@ class FollowView(FormView):
         return reverse('accounts:profile', kwargs={'pk': self.tar_user.pk})
 
 
-class UnfollowView(FormView):
+class UnfollowView(LoginRequiredMixin, FormView):
     template_name = 'accounts/unfollow.html'
     form_class = UnfollowForm
 
