@@ -1,4 +1,4 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
@@ -72,7 +72,7 @@ class UnfollowView(LoginRequiredMixin, FormView):
         if self.request.user == self.tar_user:
             return self.form_invalid(form)
         else:
-            Follows.objects.filter(actor=self.request.user, followed_user=self.tar_user).delete()
+            get_object_or_404(Follows, actor=self.request.user, followed_user=self.tar_user).delete()
         return super().form_valid(form)
     
     def get_success_url(self):
