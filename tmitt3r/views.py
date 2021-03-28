@@ -9,6 +9,7 @@ from .models import Tm33t
 def index(request):
     return render(request, 'tmitt3r/index.html')
 
+
 class HomeView(LoginRequiredMixin, ListView):
     template_name = 'tmitt3r/home.html'
     context_object_name = 'latest_tm33t_list'
@@ -18,6 +19,11 @@ class HomeView(LoginRequiredMixin, ListView):
         ログイン中のユーザーの最近の10個のツイートを取得
         """
         return Tm33t.objects.filter(poster=self.request.user).order_by('-post_time')[:10]
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['name'] = 'You'
+        return context
 
 
 class Tm33tView(LoginRequiredMixin, CreateView):
