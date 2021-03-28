@@ -48,16 +48,16 @@ class FollowView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         username = form.cleaned_data['username']
-        self.tar_user = User.objects.get(username=username)
-        if self.request.user == self.tar_user or \
-            Follows.objects.filter(actor=self.request.user, followed_user=self.tar_user).exists():
+        self.target_user = User.objects.get(username=username)
+        if self.request.user == self.target_user or \
+            Follows.objects.filter(actor=self.request.user, followed_user=self.target_user).exists():
             return self.form_invalid(form)
         else:
-            Follows.objects.create(actor=self.request.user, followed_user=self.tar_user)
+            Follows.objects.create(actor=self.request.user, followed_user=self.target_user)
         return super().form_valid(form)
     
     def get_success_url(self):
-        return reverse('accounts:profile', kwargs={'pk': self.tar_user.pk})
+        return reverse('accounts:profile', kwargs={'pk': self.target_user.pk})
 
 
 class UnfollowView(LoginRequiredMixin, FormView):
@@ -66,12 +66,12 @@ class UnfollowView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         username = form.cleaned_data['username']
-        self.tar_user = User.objects.get(username=username)
-        if self.request.user == self.tar_user:
+        self.target_user = User.objects.get(username=username)
+        if self.request.user == self.target_user:
             return self.form_invalid(form)
         else:
-            get_object_or_404(Follows, actor=self.request.user, followed_user=self.tar_user).delete()
+            get_object_or_404(Follows, actor=self.request.user, followed_user=self.target_user).delete()
         return super().form_valid(form)
     
     def get_success_url(self):
-        return reverse('accounts:profile', kwargs={'pk': self.tar_user.pk})
+        return reverse('accounts:profile', kwargs={'pk': self.target_user.pk})
