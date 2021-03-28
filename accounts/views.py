@@ -52,10 +52,10 @@ class FollowView(LoginRequiredMixin, FormView):
         username = form.cleaned_data['username']
         self.target_user = User.objects.get(username=username)
         if self.request.user == self.target_user:
-            form.add_error(username, ValidationError(_('自分自身はアンフォローできません')))
+            form.add_error('username', ValidationError(_('自分自身はフォローできません')))
             return self.form_invalid(form)
         elif Follows.objects.filter(actor=self.request.user, followed_user=self.target_user).exists():
-            form.add_error(username, ValidationError(_('すでにフォローしています')))
+            form.add_error('username', ValidationError(_('すでにフォローしています')))
             return self.form_invalid(form)
         else:
             Follows.objects.create(actor=self.request.user, followed_user=self.target_user)
@@ -73,7 +73,7 @@ class UnfollowView(LoginRequiredMixin, FormView):
         username = form.cleaned_data['username']
         self.target_user = User.objects.get(username=username)
         if self.request.user == self.target_user:
-            form.add_error(username, ValidationError(_('自分自身はアンフォローできません')))
+            form.add_error('username', ValidationError(_('自分自身はアンフォローできません')))
             return self.form_invalid(form)
         else:
             get_object_or_404(Follows, actor=self.request.user, followed_user=self.target_user).delete()
