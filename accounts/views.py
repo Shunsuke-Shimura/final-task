@@ -6,6 +6,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import FormView
 from django.views.generic.detail import DetailView
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 from .models import Follows
 from .forms import FollowForm, UnfollowForm
 
@@ -49,8 +51,11 @@ class FollowView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         username = form.cleaned_data['username']
         self.target_user = User.objects.get(username=username)
-        if self.request.user == self.target_user or \
-            Follows.objects.filter(actor=self.request.user, followed_user=self.target_user).exists():
+        if self.request.user == self.target_user:
+            form.add_error(username, ValidationError(_('自分自身はアンフォローできません')))
+            return self.form_invalid(form)
+        elif Follows.objects.filter(actor=self.request.user, followed_user=self.target_user).exists():
+            form.add_error(username, ValidationError(_('すでにフォローしています')))
             return self.form_invalid(form)
         else:
             Follows.objects.create(actor=self.request.user, followed_user=self.target_user)
@@ -68,6 +73,7 @@ class UnfollowView(LoginRequiredMixin, FormView):
         username = form.cleaned_data['username']
         self.target_user = User.objects.get(username=username)
         if self.request.user == self.target_user:
+            form.add_error(username, ValidationError(_('自分自身はアンフォローできません')))
             return self.form_invalid(form)
         else:
             get_object_or_404(Follows, actor=self.request.user, followed_user=self.target_user).delete()
