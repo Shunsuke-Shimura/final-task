@@ -15,14 +15,6 @@ no_csrf_middleware = [
 ]
 
 
-class Tm33tModelTests(TestCase):
-    def test_str_conversion(self):
-        user = User.objects.create_user(username='Tm33tModelTest')
-        text = """Very very very very very very very very very very very very very long text."""
-        tm33t = Tm33t.objects.create(poster=user, content=text)
-        self.assertEqual(str(tm33t), text[:20])
-
-
 class HomeViewTests(TestCase):
     def setUp(self):
         username = 'HomeViewTestClient'
