@@ -14,6 +14,16 @@ no_csrf_middleware = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+password = 'SamplePassword'
+
+def create_user_by_id(obj, id):
+    username = obj.__class__.__name__ + str(id)
+    user = User.objects.create_user(username=username, password=password)
+    return user
+
+def create_text(obj, id):
+    return 'This is ' + obj.__class__.__name__ + str(id) + ' Sample Text.'
+
 
 class HomeViewTests(TestCase):
     def setUp(self):
@@ -87,3 +97,38 @@ class Tm33tModelTests(TestCase):
         self.assertFalse(t1.has_been_liked(u3.get_username()))
         t1.users_liked.remove(u2)
         self.assertFalse(t1.has_been_liked(u2))
+
+
+class Tm33tLikeFeatureTests(TestCase):
+    def setUp(self):
+        # create users
+        self.user = create_user_by_id(self, 'User')
+        self.poster = create_user_by_id(self, 'Poster')
+        # create target tm33t
+        self.text1 = create_text(self, 1)
+        self.text2 = create_text(self, 2)
+        self.tm33t1 = Tm33t.objects.create(poster=self.poster, content=self.text1)
+        self.tm33t2 = Tm33t.objects.create(poster=self.poster, content=self.text2)
+        # user login
+        self.client.login(username=self.user.username, password=password)
+        # post target url
+        self.tm33t1_url = reverse('tmitt3r:detail', kwargs={'pk': self.tm33t1.pk})
+        self.tm33t2_url = reverse('tmitt3r:detail', kwargs={'pk': self.tm33t2.pk})
+
+    def test_like_post(self):
+        """
+        Tm33tDetailViewのURLにpostメソッドでlike=1を与えると
+        そのユーザーが対象のツイートにライクする。
+        """
+        self.client.post(self.tm33t1_url, data={'like': 1})
+        self.assertTrue(self.tm33t1.users_liked.filter(username=self.user.username).exists())
+
+    def test_like_post(self):
+        """
+        Tm33tDetailViewのURLにpostメソッドでlike=0を与えると
+        そのユーザーが対象のツイートのライクを外す。
+        """
+        self.tm33t2.users_liked.add(self.user)
+        self.assertTrue(self.tm33t2.users_liked.filter(username=self.user.username).exists())
+        self.client.post(self.tm33t2_url, data={'like': 0})
+        self.assertFalse(self.tm33t2.users_liked.filter(username=self.user.username).exists())
