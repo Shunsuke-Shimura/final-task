@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView
+from django.views.generic.detail import DetailView
 from django.urls import reverse_lazy
 from .models import Tm33t
 
@@ -35,3 +36,9 @@ class Tm33tView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.poster = self.request.user
         return super().form_valid(form)
+
+
+class Tm33tDetailView(LoginRequiredMixin, DetailView):
+    model = Tm33t
+    context_object_name = 'tm33t'
+    template_name = 'tmitt3r/tm33t_detail.html'
