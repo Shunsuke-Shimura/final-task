@@ -10,3 +10,9 @@ class Tm33t(models.Model):
     def __str__(self):
         length = (len(self.content) - 1) if (len(self.content) < 20) else 18
         return repr(self.content[:length])
+
+    def has_been_liked(self, user):
+        if isinstance(user, User):
+            return self.users_liked.filter(username=user.get_username()).exists()
+        else:
+            return self.users_liked.filter(username=user).exists()

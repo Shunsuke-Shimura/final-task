@@ -67,3 +67,23 @@ class Tm33tViewTests(TestCase):
                             post_time__gte=time
                         )
         self.assertEqual(tm33t.content, text)
+
+
+class Tm33tModelTests(TestCase):
+    def test_has_been_liked(self):
+        """
+        has_been_liked メソッドのテスト
+        引数にはUserオブジェクトかusernameを取り、
+        users_likedに含まれていればTrueを返す。
+        """
+        u1 = User.objects.create_user(username='Tm33tModelTests1')
+        u2 = User.objects.create_user(username='Tm33tModelTests2')
+        u3 = User.objects.create_user(username='Tm33tModelTest3')
+        t1 = Tm33t.objects.create(poster=u1, content='test_has_been_liked')
+        t1.users_liked.add(u2)
+        self.assertTrue(t1.has_been_liked(u2))
+        self.assertFalse(t1.has_been_liked(u3))
+        self.assertTrue(t1.has_been_liked(u2.get_username()))
+        self.assertFalse(t1.has_been_liked(u3.get_username()))
+        t1.users_liked.remove(u2)
+        self.assertFalse(t1.has_been_liked(u2))
