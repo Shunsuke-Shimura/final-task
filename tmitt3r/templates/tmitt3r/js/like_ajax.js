@@ -9,26 +9,28 @@ function tm33tLikeAjax(obj) {
     }
     // POSTするデータの作成
     let tm33tPk = obj.dataset.tm33tPk;
-    let nextState = obj.dataset.nextState;
-    let data = `like=${nextState}&pk=${tm33tPk}`;
+    let postState = '';
     const URL = '/tm33t/like/';
-    // nextStateを切り替える
-    if (nextState === 'like') {
-        obj.dataset.nextState = 'unlike';
+    // stateを切り替える
+    if (obj.dataset.state === 'like') {
+        postState = 'unlike';
     } else {
-        obj.dataset.nextState = 'like';
+        postState = 'like';
     }
+    let data = `like=${postState}&pk=${tm33tPk}`;
     xhr.open('POST', URL, true);
     xhr.send(data);
 }
+
 function toggleTm33tLike(obj) {
-    if (obj.nextState === 'like') {
-        // unlike
+    if (obj.dataset.state === 'like') {
+        obj.dataset.state = 'unlike';
         obj.classList.remove('like');
         obj.classList.remove('fas');
         obj.classList.add('far');
+
     } else {
-        // like
+        obj.dataset.state === 'unlike';
         obj.classList.add('like');
         obj.classList.remove('far');
         obj.classList.add('fas');
