@@ -18,6 +18,12 @@ function tm33tLikeAjax(obj) {
         postState = 'like';
     }
     let data = `like=${postState}&pk=${tm33tPk}`;
+    // csrfトークンをクッキーから取得
+    const csrftoken = getCookie('csrftoken');
+    // headerを設定
+    xhr.setRequestHeader('X-CSRFToken', csrftoken);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
     xhr.open('POST', URL, true);
     xhr.send(data);
 }
@@ -35,4 +41,19 @@ function toggleTm33tLike(obj) {
         obj.classList.remove('far');
         obj.classList.add('fas');
     }
+}
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
