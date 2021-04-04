@@ -99,6 +99,7 @@ class Tm33tModelTests(TestCase):
         self.assertFalse(t1.has_been_liked(u2))
 
 
+@override_settings(MIDDLEWARE=no_csrf_middleware)
 class Tm33tLikeFeatureTests(TestCase):
     def setUp(self):
         # create users
@@ -117,18 +118,19 @@ class Tm33tLikeFeatureTests(TestCase):
 
     def test_like_post(self):
         """
-        Tm33tDetailViewのURLにpostメソッドでlike=1を与えると
+        Tm33tDetailViewのURLにpostメソッドで適切なデータを与えると
         そのユーザーが対象のツイートにライクする。
         """
-        self.client.post(self.tm33t1_url, data={'like': 1})
+        self.client.post(self.tm33t1_url, data={'like': 'like', 'pk': self.tm33t1.pk})
         self.assertTrue(self.tm33t1.users_liked.filter(username=self.user.username).exists())
 
     def test_like_post(self):
         """
-        Tm33tDetailViewのURLにpostメソッドでlike=0を与えると
+        Tm33tDetailViewのURLにpostメソッドで適切なデータを与えると
         そのユーザーが対象のツイートのライクを外す。
         """
         self.tm33t2.users_liked.add(self.user)
         self.assertTrue(self.tm33t2.users_liked.filter(username=self.user.username).exists())
-        self.client.post(self.tm33t2_url, data={'like': 0})
+        # tm33t2に対するUnlike
+        self.client.post(self.tm33t2_url, data={'like': 'unlike', 'pk': self.tm33t2.pk})
         self.assertFalse(self.tm33t2.users_liked.filter(username=self.user.username).exists())
