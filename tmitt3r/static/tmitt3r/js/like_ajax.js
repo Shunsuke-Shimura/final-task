@@ -4,17 +4,7 @@ function tm33tLikeAjax(obj) {
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             // Likeのハートのスタイルを切り替える
-            if (obj.dataset.state === 'like') {
-                obj.dataset.state = 'unlike';
-                obj.classList.remove('like');
-                obj.classList.remove('fas');
-                obj.classList.add('far');
-            } else {
-                obj.dataset.state === 'unlike';
-                obj.classList.add('like');
-                obj.classList.remove('far');
-                obj.classList.add('fas');
-            }
+            toggleHeartStyle(obj)
         }
     }
     // POSTするデータの作成
@@ -40,16 +30,17 @@ function tm33tLikeAjax(obj) {
 }
 
 function toggleHeartStyle(obj) {
+    let heart = obj.firstElementChild;
     if (obj.dataset.state === 'like') {
         obj.dataset.state = 'unlike';
-        obj.classList.remove('like');
-        obj.classList.remove('fas');
-        obj.classList.add('far');
+        heart.classList.remove('fas');
+        heart.classList.add('far');
+        heart.classList.remove('like');
     } else {
-        obj.dataset.state === 'unlike';
-        obj.classList.add('like');
-        obj.classList.remove('far');
-        obj.classList.add('fas');
+        obj.dataset.state = 'like';
+        heart.classList.add('like');
+        heart.classList.remove('far');
+        heart.classList.add('fas');
     }
 }
 function getCookie(name) {
