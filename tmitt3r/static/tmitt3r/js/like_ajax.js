@@ -20,15 +20,16 @@ function tm33tLikeAjax(obj) {
     let data = `like=${postState}&pk=${tm33tPk}`;
     // csrfトークンをクッキーから取得
     const csrftoken = getCookie('csrftoken');
+    xhr.open('POST', URL, true);
     // headerを設定
     xhr.setRequestHeader('X-CSRFToken', csrftoken);
     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
 
-    xhr.open('POST', URL, true);
     xhr.send(data);
 }
 
-function toggleTm33tLike(obj) {
+function toggleHeartStyle(obj) {
     if (obj.dataset.state === 'like') {
         obj.dataset.state = 'unlike';
         obj.classList.remove('like');
