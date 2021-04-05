@@ -4,14 +4,24 @@ function tm33tLikeAjax(obj) {
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             // Likeのハートのスタイルを切り替える
-            toggleHeartStyle(obj);
+            if (obj.dataset.state === 'like') {
+                obj.dataset.state = 'unlike';
+                obj.classList.remove('like');
+                obj.classList.remove('fas');
+                obj.classList.add('far');
+            } else {
+                obj.dataset.state === 'unlike';
+                obj.classList.add('like');
+                obj.classList.remove('far');
+                obj.classList.add('fas');
+            }
         }
     }
     // POSTするデータの作成
     let tm33tPk = obj.dataset.tm33tPk;
     let postState = '';
     const URL = '/tm33t/like/';
-    // stateを切り替える
+    
     if (obj.dataset.state === 'like') {
         postState = 'unlike';
     } else {
@@ -35,7 +45,6 @@ function toggleHeartStyle(obj) {
         obj.classList.remove('like');
         obj.classList.remove('fas');
         obj.classList.add('far');
-
     } else {
         obj.dataset.state === 'unlike';
         obj.classList.add('like');

@@ -1,12 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView
 from django.views.generic.detail import DetailView
+from django.views.generic.base import View
 from django.urls import reverse_lazy
 from .models import Tm33t
 
 def add_like_state(queryset, user):
+    # tm33tをcontextに渡す場合にはstateアトリビュートをつける
     for tm33t in queryset:
         if tm33t.has_been_liked(user):
             tm33t.state = 'like'
@@ -60,3 +63,22 @@ class Tm33tDetailView(LoginRequiredMixin, DetailView):
             tm33t.state = 'unlike'
         else:
             tm33t.state = 'like'
+
+
+class Tm33tLikeView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponseBadRequest('Tm33tをLikeするにはPOSTメソッドを使用してください。')
+    
+    def invalid_post(self, request, *args, **kwargs):
+        return HttpResponseBadRequest('不適切なPOSTデータです')
+
+    def post(self, request, *args, **kwargs):
+        pk = request.POST.get('pk')
+        if pk == None:
+            return self.invalid_post(request, *args, **kwargs)
+        tm33t = get_object_or_404(Tm33t, pk=pk)
+        if request.POST.get('like') == 'like':
+            tm33t.users_liked.add(request.user)
+        else:
+            tm33t.users_liked.remove(request.user)
+        return JsonResponse({"state": "OK"})
