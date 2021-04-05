@@ -87,9 +87,11 @@ class Tm33tReplyView(LoginRequiredMixin, CreateView):
     model = Reply
     fields = ['content']
     template_name = 'tm33t_reply.html'
+    success_url = reverse_lazy('tmitt3r:home')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.object is not None:
-
-    
+        related_tm33t_pk = self.kwargs.get('pk')
+        related_tm33t = get_object_or_404(Tm33t, pk=related_tm33t_pk)
+        context['related_tm33t'] = related_tm33t
+        return context
