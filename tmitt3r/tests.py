@@ -171,10 +171,11 @@ class Tm33tReplyViewTests(TestCase):
     
     def test_reply_post(self):
         """
-        ReplyをPOSTするとデータベースに登録される。
+        ReplyをPOSTするとホーム画面にリダイレクトされ、データベースに登録される。
         """
         text = create_text(self, 2)
+        redirect_url = reverse('tmitt3r:home')
         res = self.client.post(self.url, data={'content': text})
-        self.assertEqual(200, res.status_code)
+        self.assertRedirects(res, redirect_url)
         self.assertTrue(Reply.objects.filter(content=text).exists())
 
