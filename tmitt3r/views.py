@@ -6,7 +6,7 @@ from django.views.generic.edit import CreateView
 from django.views.generic.detail import DetailView
 from django.views.generic.base import View
 from django.urls import reverse_lazy
-from .models import Tm33t
+from .models import Reply, Tm33t
 
 def add_like_state(queryset, user):
     # tm33tをcontextに渡す場合にはstateアトリビュートをつける
@@ -74,7 +74,7 @@ class Tm33tLikeView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         pk = request.POST.get('pk')
-        if pk == None:
+        if pk is None:
             return self.invalid_post(request, *args, **kwargs)
         tm33t = get_object_or_404(Tm33t, pk=pk)
         if request.POST.get('like') == 'like':
@@ -82,3 +82,14 @@ class Tm33tLikeView(LoginRequiredMixin, View):
         else:
             tm33t.users_liked.remove(request.user)
         return JsonResponse({"state": "OK"})
+
+class Tm33tReplyView(LoginRequiredMixin, CreateView):
+    model = Reply
+    fields = ['content']
+    template_name = 'tm33t_reply.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.object is not None:
+
+    
