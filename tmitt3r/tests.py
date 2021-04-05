@@ -2,7 +2,7 @@ from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
-from .models import Tm33t
+from .models import Tm33t, Reply
 import time
 
 no_csrf_middleware = [
@@ -80,23 +80,45 @@ class Tm33tViewTests(TestCase):
 
 
 class Tm33tModelTests(TestCase):
+    def setUp(self):
+        self.u1 = User.objects.create_user(username='Tm33tModelTests1')
+        self.u2 = User.objects.create_user(username='Tm33tModelTests2')
+        self.u3 = User.objects.create_user(username='Tm33tModelTest3')
+        self.t1 = Tm33t.objects.create(poster=self.u1, content=create_text(self, 1))
+
     def test_has_been_liked(self):
         """
         has_been_liked メソッドのテスト
         引数にはUserオブジェクトかusernameを取り、
         users_likedに含まれていればTrueを返す。
         """
-        u1 = User.objects.create_user(username='Tm33tModelTests1')
-        u2 = User.objects.create_user(username='Tm33tModelTests2')
-        u3 = User.objects.create_user(username='Tm33tModelTest3')
-        t1 = Tm33t.objects.create(poster=u1, content='test_has_been_liked')
-        t1.users_liked.add(u2)
-        self.assertTrue(t1.has_been_liked(u2))
-        self.assertFalse(t1.has_been_liked(u3))
-        self.assertTrue(t1.has_been_liked(u2.get_username()))
-        self.assertFalse(t1.has_been_liked(u3.get_username()))
-        t1.users_liked.remove(u2)
-        self.assertFalse(t1.has_been_liked(u2))
+        self.t1.users_liked.add(self.u2)
+        self.assertTrue(self.t1.has_been_liked(self.u2))
+        self.assertFalse(self.t1.has_been_liked(self.u3))
+        self.assertTrue(self.t1.has_been_liked(self.u2.get_username()))
+        self.assertFalse(self.t1.has_been_liked(self.u3.get_username()))
+        self.t1.users_liked.remove(self.u2)
+        self.assertFalse(self.t1.has_been_liked(self.u2))
+    
+    def test_is_reply(self):
+        """
+        Tm33tオブジェクトがReplyに継承されたものである場合に
+        is_reply() はTrueを返す
+        """
+        text = create_text(self, 2)
+        # Replyオブジェクトとして作成
+        reply = Reply.objects.create(poster=self.u1, related_tm33t=self.t1, content=text)
+        # tm33tオブジェクトとして取得
+        tm33t = Tm33t.objects.get(content=text)
+        self.assertTrue(reply.is_reply())
+        self.assertTrue(tm33t.is_reply())
+    
+    def test_is_not_reply(self):
+        """
+        Tm33tオブジェクトがReplyでない場合には
+        is_reply()はFalseを返す
+        """
+        self.assertFalse(self.t1.is_reply())
 
 
 @override_settings(MIDDLEWARE=no_csrf_middleware)
@@ -135,3 +157,24 @@ class Tm33tLikeFeatureTests(TestCase):
         res = self.client.post(self.url, data={'like': 'unlike', 'pk': self.tm33t2.pk})
         self.assertEqual(200, res.status_code)
         self.assertFalse(self.tm33t2.users_liked.filter(username=self.user.username).exists())
+
+
+class Tm33tReplyViewTests(TestCase):
+    def setUp(self):
+        self.user = create_user_by_id(self, 'User')
+        self.tm33t_poster = create_user_by_id(self, 'Tm33tPoster')
+        # user login
+        self.client.login(username=self.user.username, password=PASSWORD)
+        # 元のツイート
+        self.tm33t = Tm33t.objects.create(poster=self.tm33t_poster, content=create_text(self, 1))
+        self.url = reverse('tmitt3r:reply', kwargs={'pk': self.tm33t.pk})
+    
+    def test_reply_post(self):
+        """
+        ReplyをPOSTするとデータベースに登録される。
+        """
+        text = create_text(self, 2)
+        res = self.client.post(self.url, data={'content': text})
+        self.assertEqual(200, res.status_code)
+        self.assertTrue(Reply.objects.filter(content=text).exists())
+
