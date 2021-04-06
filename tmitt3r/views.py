@@ -33,11 +33,6 @@ class HomeView(LoginRequiredMixin, ListView):
         queryset = Tm33t.objects.filter(poster=self.request.user).order_by('-post_time')[:10]
         queryset = add_like_state(queryset, self.request.user)
         return queryset
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['name'] = 'You'
-        return context
 
 
 class Tm33tView(LoginRequiredMixin, CreateView):
