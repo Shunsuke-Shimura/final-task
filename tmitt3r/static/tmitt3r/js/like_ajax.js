@@ -36,12 +36,12 @@ function toggleHeartStyle(obj) {
         heart.classList.remove('fas');
         heart.classList.add('far');
         heart.classList.remove('like');
-    } else {
-        obj.dataset.state = 'like';
-        heart.classList.add('like');
-        heart.classList.remove('far');
-        heart.classList.add('fas');
+        return;
     }
+    obj.dataset.state = 'like';
+    heart.classList.add('like');
+    heart.classList.remove('far');
+    heart.classList.add('fas');
 }
 function getCookie(name) {
     let cookieValue = null;
