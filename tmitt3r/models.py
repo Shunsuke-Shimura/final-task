@@ -14,5 +14,4 @@ class Tm33t(models.Model):
     def has_been_liked(self, user):
         if isinstance(user, User):
             return self.users_liked.filter(username=user.get_username()).exists()
-        else:
-            return self.users_liked.filter(username=user).exists()
+        return self.users_liked.filter(username=user).exists()
