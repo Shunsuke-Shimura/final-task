@@ -86,7 +86,7 @@ class Tm33tLikeView(LoginRequiredMixin, View):
 class Tm33tReplyView(LoginRequiredMixin, CreateView):
     model = Reply
     fields = ['content']
-    template_name = 'tm33t_reply.html'
+    template_name = 'tmitt3r/tm33t_reply.html'
     success_url = reverse_lazy('tmitt3r:home')
 
     def get_context_data(self, **kwargs):
