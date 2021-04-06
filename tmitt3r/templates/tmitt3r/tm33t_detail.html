@@ -9,13 +9,13 @@
     <p>By : @{{ tm33t.poster }}</p>
     {% if tm33t.state == 'like' %}
     <div>
-        <button type="button" onclick="tm33tLikeAjax(this)" data-state="like" data-pk="{{ tm33t.pk }}">
+        <button type="button" onclick="tm33tLikeAjax(this)" data-state="like" data-tm33t-pk="{{ tm33t.pk }}">
             <i class="fas fa-heart heart like"></i>
         </button>
     </div>
     {% else %}
     <div>
-        <button type="button" onclick="tm33tLikeAjax(this)" data-state="unlike" data-pk="{{ tm33t.pk }}">
+        <button type="button" onclick="tm33tLikeAjax(this)" data-state="unlike" data-tm33t-pk="{{ tm33t.pk }}">
             <i class="far fa-heart heart"></i>
         </button>
     </div>
