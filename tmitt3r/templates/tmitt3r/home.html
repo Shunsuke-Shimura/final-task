@@ -11,5 +11,5 @@
 </header>
 
 <h1>Tmitt3r Home</h1>
-{% include 'tmitt3r/tm33t_list.html' %}
+{% include 'tmitt3r/tm33t_list.html' with name=request.user %}
 {% endblock %}

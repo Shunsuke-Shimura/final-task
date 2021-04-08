@@ -20,5 +20,9 @@
     </div>
 </div>
 {% empty %}
-<p>{{ name }} haven't tm33ted yet.</p>
+    {% if name == request.user %}
+        <p>You haven't tm33ted yet.</p>
+    {% else %}
+        <p>{{ name }} haven't tm33ted yet.</p>
+    {% endif %}
 {% endfor %}
