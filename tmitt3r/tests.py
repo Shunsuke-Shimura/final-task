@@ -14,13 +14,15 @@ no_csrf_middleware = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+PASSWORD = 'SamplePassword'
 
-class Tm33tModelTests(TestCase):
-    def test_str_conversion(self):
-        user = User.objects.create_user(username='Tm33tModelTest')
-        text = """Very very very very very very very very very very very very very long text."""
-        tm33t = Tm33t.objects.create(poster=user, content=text)
-        self.assertEqual(str(tm33t), text[:20])
+def create_user_by_id(obj, id):
+    username = obj.__class__.__name__ + str(id)
+    user = User.objects.create_user(username=username, password=PASSWORD)
+    return user
+
+def create_text(obj, id):
+    return 'This is ' + obj.__class__.__name__ + str(id) + ' Sample Text.'
 
 
 class HomeViewTests(TestCase):
@@ -75,3 +77,61 @@ class Tm33tViewTests(TestCase):
                             post_time__gte=time
                         )
         self.assertEqual(tm33t.content, text)
+
+
+class Tm33tModelTests(TestCase):
+    def test_has_been_liked(self):
+        """
+        has_been_liked メソッドのテスト
+        引数にはUserオブジェクトかusernameを取り、
+        users_likedに含まれていればTrueを返す。
+        """
+        u1 = User.objects.create_user(username='Tm33tModelTests1')
+        u2 = User.objects.create_user(username='Tm33tModelTests2')
+        u3 = User.objects.create_user(username='Tm33tModelTest3')
+        t1 = Tm33t.objects.create(poster=u1, content='test_has_been_liked')
+        t1.users_liked.add(u2)
+        self.assertTrue(t1.has_been_liked(u2))
+        self.assertFalse(t1.has_been_liked(u3))
+        self.assertTrue(t1.has_been_liked(u2.get_username()))
+        self.assertFalse(t1.has_been_liked(u3.get_username()))
+        t1.users_liked.remove(u2)
+        self.assertFalse(t1.has_been_liked(u2))
+
+
+@override_settings(MIDDLEWARE=no_csrf_middleware)
+class Tm33tLikeFeatureTests(TestCase):
+    def setUp(self):
+        # create users
+        self.user = create_user_by_id(self, 'User')
+        self.poster = create_user_by_id(self, 'Poster')
+        # create target tm33t
+        self.text1 = create_text(self, 1)
+        self.text2 = create_text(self, 2)
+        self.tm33t1 = Tm33t.objects.create(poster=self.poster, content=self.text1)
+        self.tm33t2 = Tm33t.objects.create(poster=self.poster, content=self.text2)
+        # user login
+        self.client.login(username=self.user.username, password=PASSWORD)
+        # post target url
+        self.url = reverse('tmitt3r:like')
+
+    def test_like_post(self):
+        """
+        Tm33tDetailViewのURLにpostメソッドで適切なデータを与えると
+        そのユーザーが対象のツイートにライクする。
+        """
+        res = self.client.post(self.url, data={'like': 'like', 'pk': self.tm33t1.pk})
+        self.assertEqual(200, res.status_code)
+        self.assertTrue(self.tm33t1.users_liked.filter(username=self.user.username).exists())
+
+    def test_unlike_post(self):
+        """
+        Tm33tDetailViewのURLにpostメソッドで適切なデータを与えると
+        そのユーザーが対象のツイートのライクを外す。
+        """
+        self.tm33t2.users_liked.add(self.user)
+        self.assertTrue(self.tm33t2.users_liked.filter(username=self.user.username).exists())
+        # tm33t2に対するUnlike
+        res = self.client.post(self.url, data={'like': 'unlike', 'pk': self.tm33t2.pk})
+        self.assertEqual(200, res.status_code)
+        self.assertFalse(self.tm33t2.users_liked.filter(username=self.user.username).exists())

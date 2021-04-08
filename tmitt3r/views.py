@@ -1,13 +1,26 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView
+from django.views.generic.detail import DetailView
+from django.views.generic.base import View
 from django.urls import reverse_lazy
 from .models import Tm33t
+
+def add_like_state(queryset, user):
+    # tm33tをcontextに渡す場合にはstateアトリビュートをつける
+    for tm33t in queryset:
+        if tm33t.has_been_liked(user):
+            tm33t.state = 'like'
+        else:
+            tm33t.state = 'unlike'
+    return queryset
 
 
 def index(request):
     return render(request, 'tmitt3r/index.html')
+
 
 class HomeView(LoginRequiredMixin, ListView):
     template_name = 'tmitt3r/home.html'
@@ -17,7 +30,9 @@ class HomeView(LoginRequiredMixin, ListView):
         """
         ログイン中のユーザーの最近の10個のツイートを取得
         """
-        return Tm33t.objects.filter(poster=self.request.user).order_by('-post_time')[:10]
+        queryset = Tm33t.objects.filter(poster=self.request.user).order_by('-post_time')[:10]
+        queryset = add_like_state(queryset, self.request.user)
+        return queryset
 
 
 class Tm33tView(LoginRequiredMixin, CreateView):
@@ -29,3 +44,38 @@ class Tm33tView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.poster = self.request.user
         return super().form_valid(form)
+
+
+class Tm33tDetailView(LoginRequiredMixin, DetailView):
+    model = Tm33t
+    context_object_name = 'tm33t'
+    template_name = 'tmitt3r/tm33t_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tm33t = context.get('tm33t')
+        if tm33t.has_been_liked(self.request.user):
+            tm33t.state = 'like'
+        else:
+            tm33t.state = 'unlike'
+        context['tm33t'] = tm33t
+        return context
+
+
+class Tm33tLikeView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponseBadRequest('Tm33tをLikeするにはPOSTメソッドを使用してください。')
+    
+    def invalid_post(self, request, *args, **kwargs):
+        return HttpResponseBadRequest('不適切なPOSTデータです')
+
+    def post(self, request, *args, **kwargs):
+        pk = request.POST.get('pk')
+        if pk == None:
+            return self.invalid_post(request, *args, **kwargs)
+        tm33t = get_object_or_404(Tm33t, pk=pk)
+        if request.POST.get('like') == 'like':
+            tm33t.users_liked.add(request.user)
+        else:
+            tm33t.users_liked.remove(request.user)
+        return JsonResponse({"state": "OK"})
