@@ -6,7 +6,7 @@ from django.views.generic.edit import CreateView
 from django.views.generic.detail import DetailView
 from django.views.generic.base import View
 from django.urls import reverse_lazy
-from .models import Tm33t
+from .models import Reply, Tm33t
 
 def add_like_state(queryset, user):
     # tm33tをcontextに渡す場合にはstateアトリビュートをつける
@@ -71,7 +71,7 @@ class Tm33tLikeView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         pk = request.POST.get('pk')
-        if pk == None:
+        if pk is None:
             return self.invalid_post(request, *args, **kwargs)
         tm33t = get_object_or_404(Tm33t, pk=pk)
         if request.POST.get('like') == 'like':
@@ -79,3 +79,26 @@ class Tm33tLikeView(LoginRequiredMixin, View):
         else:
             tm33t.users_liked.remove(request.user)
         return JsonResponse({"state": "OK"})
+
+class Tm33tReplyView(LoginRequiredMixin, CreateView):
+    model = Reply
+    fields = ['content']
+    template_name = 'tmitt3r/tm33t_reply.html'
+    success_url = reverse_lazy('tmitt3r:home')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # related_tm33t を追加
+        related_tm33t_pk = self.kwargs.get('pk')
+        related_tm33t = get_object_or_404(Tm33t, pk=related_tm33t_pk)
+        context['related_tm33t'] = related_tm33t
+        return context
+
+    def form_valid(self, form):
+        # posterを設定
+        form.instance.poster = self.request.user
+        # related_tm33tを設定
+        related_tm33t_pk = self.kwargs.get('pk')
+        related_tm33t = get_object_or_404(Tm33t, pk=related_tm33t_pk)
+        form.instance.related_tm33t = related_tm33t
+        return super().form_valid(form)

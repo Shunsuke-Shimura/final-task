@@ -15,3 +15,10 @@ class Tm33t(models.Model):
         if isinstance(user, User):
             return self.users_liked.filter(username=user.get_username()).exists()
         return self.users_liked.filter(username=user).exists()
+    
+    def is_reply(self):
+        return hasattr(self, 'reply')
+
+
+class Reply(Tm33t):
+    related_tm33t = models.ForeignKey(Tm33t, related_name="replies", on_delete=models.CASCADE)
