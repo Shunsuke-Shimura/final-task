@@ -8,8 +8,9 @@ from django.views.generic.edit import FormView
 from django.views.generic.detail import DetailView
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-from .models import Follows
-from .forms import FollowForm, UnfollowForm
+from accounts.models import Follows
+from accounts.forms import FollowForm, UnfollowForm
+from tmitt3r.views import add_like_state, add_retm33t_state
 
 
 class SignUpView(FormView):
@@ -35,7 +36,10 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['follow_num'] = Follows.objects.filter(actor=self.object).count()
         context['follower_num'] = Follows.objects.filter(followed_user=self.object).count()
-        context['latest_tm33t_list'] = self.object.tm33ts.order_by('-post_time')[:10]
+        latest_tm33t_list = self.object.tm33ts.order_by('-post_time')[:10]
+        latest_tm33t_list = add_like_state(latest_tm33t_list, self.request.user)
+        latest_tm33t_list = add_retm33t_state(latest_tm33t_list, self.request.user)
+        context['latest_tm33t_list'] = latest_tm33t_list
         if self.object != self.request.user:
             if Follows.objects.filter(actor=self.request.user, followed_user=self.object).exists():
                 context['following_state'] = 'following'

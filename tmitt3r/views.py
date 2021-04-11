@@ -17,6 +17,13 @@ def add_like_state(queryset, user):
             tm33t.state = 'unlike'
     return queryset
 
+def add_retm33t_state(queryset, user):
+    for tm33t in queryset:
+        if tm33t.has_been_retm33ted(user):
+            tm33t.retm33t = 'retm33ted'
+        else:
+            tm33t.retm33t = 'unretm33ted'
+    return queryset
 
 def index(request):
     return render(request, 'tmitt3r/index.html')
@@ -32,6 +39,7 @@ class HomeView(LoginRequiredMixin, ListView):
         """
         queryset = Tm33t.objects.filter(poster=self.request.user).order_by('-post_time')[:10]
         queryset = add_like_state(queryset, self.request.user)
+        queryset = add_retm33t_state(queryset, self.request.user)
         return queryset
 
 
@@ -58,6 +66,10 @@ class Tm33tDetailView(LoginRequiredMixin, DetailView):
             tm33t.state = 'like'
         else:
             tm33t.state = 'unlike'
+        if tm33t.has_been_retm33ted(self.request.user):
+            tm33t.retm33t = 'retm33ted'
+        else:
+            tm33t.retm33t = 'unretm33ted'
         context['tm33t'] = tm33t
         return context
 
