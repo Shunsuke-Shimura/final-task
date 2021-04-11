@@ -80,6 +80,7 @@ class Tm33tLikeView(LoginRequiredMixin, View):
             tm33t.users_liked.remove(request.user)
         return JsonResponse({"state": "OK"})
 
+
 class Tm33tReplyView(LoginRequiredMixin, CreateView):
     model = Reply
     fields = ['content']
@@ -102,3 +103,19 @@ class Tm33tReplyView(LoginRequiredMixin, CreateView):
         related_tm33t = get_object_or_404(Tm33t, pk=related_tm33t_pk)
         form.instance.related_tm33t = related_tm33t
         return super().form_valid(form)
+
+
+class Retm33tView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponseBadRequest('Tm33tをRetm33tするにはPOSTメソッドを使用してください。')
+    
+    def invalid_post(self, request, *args, **kwargs):
+        return HttpResponseBadRequest('不適切なPOSTデータです')
+    
+    def post(self, request, *args, **kwargs):
+        pk = request.POST.get('pk')
+        if pk is None:
+            return self.invalid_post(request, *args, **kwargs)
+        tm33t = get_object_or_404(Tm33t, pk=pk)
+        tm33t.users_retm33ted.add(request.user)
+        return JsonResponse({"state": "OK"})
