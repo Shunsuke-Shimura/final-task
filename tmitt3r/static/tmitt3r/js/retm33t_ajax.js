@@ -14,7 +14,7 @@ function retm33tAjax(obj) {
     
     let URL = '';
     if (obj.dataset.retm33t === 'retm33ted') {
-        URL = UNRETM33t_URL;
+        URL = UNRETM33T_URL;
     } else {
         URL = RETM33T_URL;
     }
@@ -30,17 +30,17 @@ function retm33tAjax(obj) {
     xhr.send(data);
 }
 
-function toggleHeartStyle(obj) {
-    let heart = obj.firstElementChild;
+function toggleRetm33tIconStyle(obj) {
+    const retm33tIcon = obj.firstElementChild;
     if (obj.dataset.retm33t === 'retm33ted') {
         obj.dataset.retm33t = 'unretm33ted';
-        heart.classList.remove('retm33ted');
-        heart.classList.add('unretm33ted');
+        retm33tIcon.classList.remove('retm33ted');
+        retm33tIcon.classList.add('unretm33ted');
         return;
     }
     obj.dataset.retm33t = 'retm33ted';
-    heart.classList.remove('unretm33ted');
-    heart.classList.add('retm33ted');
+    retm33tIcon.classList.remove('unretm33ted');
+    retm33tIcon.classList.add('retm33ted');
 }
 function getCookie(name) {
     let cookieValue = null;
