@@ -5,9 +5,16 @@
     <p>By : @{{ tm33t.poster }}</p>
     <p><a href="{% url 'tmitt3r:detail' tm33t.pk %}">詳細</a></p>
     <div>
+        <!-- Reply -->
         <a href="{% url 'tmitt3r:reply' tm33t.pk %}">
             <i class="fas fa-reply"></i>
         </a>
+        <!-- Retm33t -->
+        <button type="button" onclick="retm33tAjax(this)" data-retm33t="{{ tm33t.retm33t }}" data-tm33t-pk="{{ tm33t.pk }}">
+            <i class="fas fa-retweet {{ tm33t.retm33t }}"></i>
+        </button>
+        {% endif %}
+        <!-- Like -->
         {% if tm33t.state == 'like' %}
         <button type="button" onclick="tm33tLikeAjax(this)" data-state="like" data-tm33t-pk="{{ tm33t.pk }}">
             <i class="fas fa-heart heart like"></i>
