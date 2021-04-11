@@ -25,7 +25,6 @@
         <button type="button" onclick="retm33tAjax(this)" data-retm33t="{{ tm33t.retm33t }}" data-tm33t-pk="{{ tm33t.pk }}">
             <i class="fas fa-retweet {{ tm33t.retm33t }}"></i>
         </button>
-        {% endif %}
         <!-- Like -->
         {% if tm33t.state == 'like' %}
         <button type="button" onclick="tm33tLikeAjax(this)" data-state="like" data-tm33t-pk="{{ tm33t.pk }}">
