@@ -17,6 +17,11 @@ class Tm33t(models.Model):
         if isinstance(user, User):
             return self.users_liked.filter(username=user.get_username()).exists()
         return self.users_liked.filter(username=user).exists()
+
+    def has_been_retm33ted(self, user):
+        if isinstance(user, User):
+            return self.users_retm33ted.filter(username=user.get_username()).exists()
+        return self.users_retm33ted.filter(username=user).exists()
     
     def is_reply(self):
         return hasattr(self, 'reply')
