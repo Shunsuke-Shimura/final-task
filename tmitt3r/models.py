@@ -1,11 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.fields import related
 
 class Tm33t(models.Model):
     poster = models.ForeignKey(User, related_name='tm33ts', on_delete=models.CASCADE)
     post_time = models.DateTimeField(verbose_name='tm33t time', auto_now=True)
     content = models.TextField()
     users_liked = models.ManyToManyField(User, related_name='tm33ts_liked')
+    users_retm33ted = models.ManyToManyField(User, through='Retm33t')
 
     def __str__(self):
         length = (len(self.content) - 1) if (len(self.content) < 20) else 18
@@ -22,3 +24,14 @@ class Tm33t(models.Model):
 
 class Reply(Tm33t):
     related_tm33t = models.ForeignKey(Tm33t, related_name="replies", on_delete=models.CASCADE)
+
+
+class Retm33t(models.Model):
+    related_tm33t = models.ForeignKey(Tm33t, on_delete=models.CASCADE)
+    user_retm33ted = models.ForeignKey(User, on_delete=models.CASCADE)
+    time_retm33ted = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user_retm33ted', 'related_tm33t'], name='unique_retm33t')
+        ]
