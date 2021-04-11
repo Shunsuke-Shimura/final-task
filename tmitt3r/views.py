@@ -119,3 +119,19 @@ class Retm33tView(LoginRequiredMixin, View):
         tm33t = get_object_or_404(Tm33t, pk=pk)
         tm33t.users_retm33ted.add(request.user)
         return JsonResponse({"state": "OK"})
+
+
+class Unretm33tView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponseBadRequest('Tm33tをUnretm33tするにはPOSTメソッドを使用してください。')
+    
+    def invalid_post(self, request, *args, **kwargs):
+        return HttpResponseBadRequest('不適切なPOSTデータです')
+
+    def post(self, request, *args, **kwargs):
+        pk = request.POST.get('pk')
+        if pk is None:
+            return self.invalid_post(request, *args, kwargs)
+        tm33t = get_object_or_404(Tm33t, pk=pk)
+        tm33t.users_retm33ted.remove(request.user)
+        return JsonResponse({"state": "OK"})

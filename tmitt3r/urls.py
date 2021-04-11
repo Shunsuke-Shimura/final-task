@@ -11,5 +11,5 @@ urlpatterns = [
     path('tm33t/reply/<int:pk>/', views.Tm33tReplyView.as_view(), name='reply'),
     path('tm33t/like/', views.Tm33tLikeView.as_view(), name='like'),
     path('tm33t/retm33t/', views.Retm33tView.as_view(), name='retm33t'),
-    # path('tm33t/unretm33t/', views.Unretm33tView.as_view(), name='unretm33t'),
+    path('tm33t/unretm33t/', views.Unretm33tView.as_view(), name='unretm33t'),
 ]
