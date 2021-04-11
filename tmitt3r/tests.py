@@ -199,7 +199,7 @@ class Retm33tViewTests(TestCase):
         res = self.client.post(self.url, data={'pk': self.tm33t1.pk})
         self.assertEqual(200, res.status_code)
         self.assertTrue(self.tm33t1.users_retm33ted.filter(username=self.user.username).exists())
-
+    
     def test_retm33t_already_exists(self):
         """
         すでに存在するRetm33tに対してはステータスコード200を返し、
@@ -209,3 +209,33 @@ class Retm33tViewTests(TestCase):
         res = self.client.post(self.url, data={'pk': self.tm33t2.pk})
         self.assertEqual(200, res.status_code)
         self.assertTrue(self.tm33t2.users_retm33ted.filter(username=self.user.username).exists())
+
+
+class Unretm33tViewTests(TestCase):
+    def setUp(self):
+        self.user = create_user_by_id(self, 'User')
+        self.tm33t_poster = create_user_by_id(self, 'Poster')
+        # user login
+        self.client.login(username=self.user.username, password=PASSWORD)
+        # 元のツイート
+        self.url = reverse('tmitt3r:unretm33t')
+    
+    def test_unretm33t_post(self):
+        """
+        Unretm33tのPOSTに対して自身のRetm33tを削除する。
+        """
+        tm33t = Tm33t.objects.create(poster=self.tm33t_poster, content=create_text(self, 1))
+        tm33t.users_retm33ted.add(self.user)
+        res = self.client.post(self.url, data={'pk': tm33t.pk})
+        self.assertEqual(200, res.status_code)
+        self.assertFalse(tm33t.users_retm33ted.filter(username=self.user.username).exists())
+    
+    def test_unretm33t_does_not_exists(self):
+        """
+        存在しないRetm33tに対するUnretm33tのPOSTには何もしない
+        """
+        tm33t = Tm33t.objects.create(poster=self.tm33t_poster, content=create_text(self, 2))
+        self.assertFalse(tm33t.users_retm33ted.filter(username=self.user.username).exists())
+        res = self.client.post(self.url, data={'pk': tm33t.pk})
+        self.assertEqual(200, res.status_code)
+        self.assertFalse(tm33t.users_retm33ted.filter(username=self.user.username).exists())
