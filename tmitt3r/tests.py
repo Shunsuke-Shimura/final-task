@@ -179,3 +179,33 @@ class Tm33tReplyViewTests(TestCase):
         self.assertRedirects(res, redirect_url)
         self.assertTrue(Reply.objects.filter(content=text).exists())
 
+
+@override_settings(MIDDLEWARE=no_csrf_middleware)
+class Retm33tViewTests(TestCase):
+    def setUp(self):
+        self.user = create_user_by_id(self, 'User')
+        self.tm33t_poster = create_user_by_id(self, 'Poster')
+        # user login
+        self.client.login(username=self.user.username, password=PASSWORD)
+        # 元のツイート
+        self.tm33t1 = Tm33t.objects.create(poster=self.tm33t_poster, content=create_text(self, 1))
+        self.tm33t2 = Tm33t.objects.create(poster=self.tm33t_poster, content=create_text(self, 2))
+        self.url = reverse('tmitt3r:retm33t')
+
+    def test_retm33t_post(self):
+        """
+        Retm33tをPOSTするとTm33tモデルのusers_retm33tedに追加される
+        """
+        res = self.client.post(self.url, data={'pk': self.tm33t1.pk})
+        self.assertEqual(200, res.status_code)
+        self.assertTrue(self.tm33t1.users_retm33ted.filter(username=self.user.username).exists())
+
+    def test_retm33t_already_exists(self):
+        """
+        すでに存在するRetm33tに対してはステータスコード200を返し、
+        Retm33tを新しく作成しない。
+        """
+        self.tm33t2.users_retm33ted.add(self.user)
+        res = self.client.post(self.url, data={'pk': self.tm33t2.pk})
+        self.assertEqual(200, res.status_code)
+        self.assertTrue(self.tm33t2.users_retm33ted.filter(username=self.user.username).exists())
