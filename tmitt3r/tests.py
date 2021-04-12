@@ -199,3 +199,21 @@ class Tm33tReplyViewTests(TestCase):
         self.assertRedirects(res, redirect_url)
         self.assertTrue(Reply.objects.filter(content=text).exists())
 
+
+class Retm33tViewTests(TestCase):
+    def setUp(self):
+        self.user = create_user_by_id(self, 'User')
+        self.tm33t_poster = create_user_by_id(self, 'Tm33tPoster')
+        # user login
+        self.client.login(username=self.user.username, password=PASSWORD)
+        # 元のツイート
+        self.tm33t = Tm33t.objects.create(poster=self.tm33t_poster, content=create_text(self, 1))
+        self.url = reverse('tmitt3r:retm33t')
+    
+    def test_retm33t_post(self):
+        """
+        Retm33tビューにtm33tのpkをPOSTすると、そのtm33tをRetm33tする。
+        """
+        res = self.client.post(self.url, data={'pk': self.tm33t.pk})
+        self.assertEqual(200, res.status_code)
+        self.assertTrue(Retm33t.objects.filter(tm33t_retm33ted=self.tm33t).exists())
