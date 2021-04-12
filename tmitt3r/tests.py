@@ -2,7 +2,7 @@ from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
-from .models import Tm33t, Reply
+from .models import Tm33t, Reply, Retm33t
 import time
 
 no_csrf_middleware = [
@@ -119,6 +119,26 @@ class Tm33tModelTests(TestCase):
         is_reply()はFalseを返す
         """
         self.assertFalse(self.t1.is_reply())
+    
+    def test_is_retm33t(self):
+        """
+        Tm33tオブジェクトがRetm33tに継承されたものである場合に
+        is_retm33t() はTrueを返す
+        """
+        text = create_text(self, 3)
+        # Replyオブジェクトとして作成
+        retm33t = Retm33t.objects.create(poster=self.u1, tm33t_retm33ted=self.t1, content=text)
+        # tm33tオブジェクトとして取得
+        tm33t = Tm33t.objects.get(content=text)
+        self.assertTrue(retm33t.is_retm33t())
+        self.assertTrue(tm33t.is_retm33t())
+    
+    def test_is_not_retm33t(self):
+        """
+        Tm33tオブジェクトがRetm33tでない場合には
+        is_retm33t()はFalseを返す
+        """
+        self.assertFalse(self.t1.is_retm33t())
 
 
 @override_settings(MIDDLEWARE=no_csrf_middleware)
