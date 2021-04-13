@@ -217,3 +217,23 @@ class Retm33tViewTests(TestCase):
         res = self.client.post(self.url, data={'pk': self.tm33t.pk})
         self.assertEqual(200, res.status_code)
         self.assertTrue(Retm33t.objects.filter(tm33t_retm33ted=self.tm33t).exists())
+
+
+class Unretm33tTests(TestCase):
+    def setUp(self):
+        self.user = create_user_by_id(self, 'User')
+        self.tm33t_poster = create_user_by_id(self, 'Tm33tPoster')
+        # user login
+        self.client.login(username=self.user.username, password=PASSWORD)
+        # 元のツイート
+        self.tm33t = Tm33t.objects.create(poster=self.tm33t_poster, content=create_text(self, 1))
+        self.url = reverse('tmitt3r:unretm33t')
+    
+    def test_unretm33t_post(self):
+        """
+        Unretm33tビューにTm33tのpkをPOSTすると、そのTm33tのRetm33tを削除する。
+        """
+        Retm33t.objects.create(poster=self.user, tm33t_retm33ted=self.tm33t)
+        res = self.client.post(self.url, data={'pk': self.tm33t.pk})
+        self.assertEqual(200, res.status_code)
+        self.assertFalse(Retm33t.objects.filter(poster=self.user, tm33t_retm33ted=self.tm33t).exists())
