@@ -1,3 +1,4 @@
+{% load tm33t_state %}
 {% extends 'base.html' %}
 {% block title %}Tm33t Detail{% endblock %}
 
@@ -26,9 +27,15 @@
     <p>By : @{{ tm33t.poster }}</p>
     {% endif %}
     <div>
+        <!-- reply -->
         <a href="{% url 'tmitt3r:reply' tm33t.pk %}">
             <i class="fas fa-reply"></i>
         </a>
+        <!-- retm33t -->
+        <a href="{% url 'tmitt3r:retm33t' %}" data-state="{{ tm33t|retm33t_state:request.user }}" data-tm33t-pk="{{ tm33t.pk }}">
+            <i class="fas fa-retweet {{ tm33t|retm33t_state:request.user }}"></i>
+        </a>
+        <!-- like -->
         {% if tm33t.state == 'like' %}
         <button type="button" onclick="tm33tLikeAjax(this)" data-state="like" data-tm33t-pk="{{ tm33t.pk }}">
             <i class="fas fa-heart heart like"></i>

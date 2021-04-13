@@ -1,3 +1,4 @@
+{% load tm33t_state %}
 {% for tm33t in latest_tm33t_list %}
 <div>
     {% if tm33t.is_retm33t %}
@@ -14,9 +15,15 @@
     {% endif %}
     <p><a href="{% url 'tmitt3r:detail' tm33t.pk %}">詳細</a></p>
     <div>
+        <!-- reply -->
         <a href="{% url 'tmitt3r:reply' tm33t.pk %}">
             <i class="fas fa-reply"></i>
         </a>
+        <!-- retm33t -->
+        <a href="{% url 'tmitt3r:retm33t' %}" data-state="{{ tm33t|retm33t_state:request.user }}" data-tm33t-pk="{{ tm33t.pk }}">
+            <i class="fas fa-retweet {{ tm33t|retm33t_state:request.user }}"></i>
+        </a>
+        <!-- like -->
         {% if tm33t.state == 'like' %}
         <button type="button" onclick="tm33tLikeAjax(this)" data-state="like" data-tm33t-pk="{{ tm33t.pk }}">
             <i class="fas fa-heart heart like"></i>
