@@ -6,7 +6,7 @@ from django.views.generic.edit import CreateView
 from django.views.generic.detail import DetailView
 from django.views.generic.base import View
 from django.urls import reverse_lazy
-from .models import Reply, Tm33t
+from .models import Reply, Tm33t, Retm33t
 
 def add_like_state(queryset, user):
     # tm33tをcontextに渡す場合にはstateアトリビュートをつける
@@ -102,3 +102,37 @@ class Tm33tReplyView(LoginRequiredMixin, CreateView):
         related_tm33t = get_object_or_404(Tm33t, pk=related_tm33t_pk)
         form.instance.related_tm33t = related_tm33t
         return super().form_valid(form)
+
+
+class Retm33tView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponseBadRequest('Tm33tをRetm33tするにはPOSTメソッドを使用してください。')
+    
+    def invalid_post(self, request, *args, **kwargs):
+        return HttpResponseBadRequest('不適切なPOSTデータです')
+
+    def post(self, request, *args, **kwargs):
+        pk = request.POST.get('pk')
+        if pk is None:
+            return self.invalid_post(request, *args, **kwargs)
+        tm33t = get_object_or_404(Tm33t, pk=pk)
+        # Retm33tが存在するかどうか確認
+        if not Retm33t.objects.filter(poster=request.user, tm33t_retm33ted=tm33t).exists():
+            Retm33t.objects.create(poster=request.user, tm33t_retm33ted=tm33t)
+        return JsonResponse({"state": "OK"})
+
+
+class Unretm33tView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponseBadRequest('Tm33tをUnretm33tするにはPOSTメソッドを使用してください。')
+    
+    def invalid_post(self, request, *args, **kwargs):
+        return HttpResponseBadRequest('不適切なPOSTデータです')
+
+    def post(self, request, *args, **kwargs):
+        pk = request.POST.get('pk')
+        if pk is None:
+            return self.invalid_post(request, *args, **kwargs)
+        tm33t = get_object_or_404(Tm33t, pk=pk)
+        Retm33t.objects.filter(poster=request.user, tm33t_retm33ted=tm33t).delete()
+        return JsonResponse({"state": "OK"})

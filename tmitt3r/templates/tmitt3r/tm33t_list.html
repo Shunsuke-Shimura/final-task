@@ -1,13 +1,29 @@
+{% load tm33t_state %}
 {% for tm33t in latest_tm33t_list %}
 <div>
+    {% if tm33t.is_retm33t %}
+    <!-- retm33t -->
+    <p>Retm33ted by : @{{ tm33t.poster }}</p>
+    <p>{{ tm33t.retm33t.tm33t_retm33ted.content|linebreaksbr }}</p>
+    <p>Tm33ted : {{ tm33t.retm33t.tm33t_retm33ted.post_time }}</p>
+    <p>By : @{{ tm33t.retm33t.tm33t_retm33ted.poster }}</p>
+    {% else %}
+    <!-- normal tm33t -->
     <p>{{ tm33t.content|linebreaksbr }}</p>
     <p>Tm33ted : {{ tm33t.post_time }}</p>
     <p>By : @{{ tm33t.poster }}</p>
+    {% endif %}
     <p><a href="{% url 'tmitt3r:detail' tm33t.pk %}">詳細</a></p>
     <div>
+        <!-- reply -->
         <a href="{% url 'tmitt3r:reply' tm33t.pk %}">
             <i class="fas fa-reply"></i>
         </a>
+        <!-- retm33t -->
+        <button onclick="retm33tAjax(this)" data-state="{{ tm33t|retm33t_state:request.user }}" data-tm33t-pk="{{ tm33t.pk }}">
+            <i class="fas fa-retweet {{ tm33t|retm33t_state:request.user }}"></i>
+        </button>
+        <!-- like -->
         {% if tm33t.state == 'like' %}
         <button type="button" onclick="tm33tLikeAjax(this)" data-state="like" data-tm33t-pk="{{ tm33t.pk }}">
             <i class="fas fa-heart heart like"></i>

@@ -2,7 +2,7 @@ from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
-from .models import Tm33t, Reply
+from .models import Tm33t, Reply, Retm33t
 import time
 
 no_csrf_middleware = [
@@ -119,6 +119,26 @@ class Tm33tModelTests(TestCase):
         is_reply()はFalseを返す
         """
         self.assertFalse(self.t1.is_reply())
+    
+    def test_is_retm33t(self):
+        """
+        Tm33tオブジェクトがRetm33tに継承されたものである場合に
+        is_retm33t() はTrueを返す
+        """
+        text = create_text(self, 3)
+        # Replyオブジェクトとして作成
+        retm33t = Retm33t.objects.create(poster=self.u1, tm33t_retm33ted=self.t1, content=text)
+        # tm33tオブジェクトとして取得
+        tm33t = Tm33t.objects.get(content=text)
+        self.assertTrue(retm33t.is_retm33t())
+        self.assertTrue(tm33t.is_retm33t())
+    
+    def test_is_not_retm33t(self):
+        """
+        Tm33tオブジェクトがRetm33tでない場合には
+        is_retm33t()はFalseを返す
+        """
+        self.assertFalse(self.t1.is_retm33t())
 
 
 @override_settings(MIDDLEWARE=no_csrf_middleware)
@@ -179,3 +199,41 @@ class Tm33tReplyViewTests(TestCase):
         self.assertRedirects(res, redirect_url)
         self.assertTrue(Reply.objects.filter(content=text).exists())
 
+
+class Retm33tViewTests(TestCase):
+    def setUp(self):
+        self.user = create_user_by_id(self, 'User')
+        self.tm33t_poster = create_user_by_id(self, 'Tm33tPoster')
+        # user login
+        self.client.login(username=self.user.username, password=PASSWORD)
+        # 元のツイート
+        self.tm33t = Tm33t.objects.create(poster=self.tm33t_poster, content=create_text(self, 1))
+        self.url = reverse('tmitt3r:retm33t')
+    
+    def test_retm33t_post(self):
+        """
+        Retm33tビューにtm33tのpkをPOSTすると、そのtm33tをRetm33tする。
+        """
+        res = self.client.post(self.url, data={'pk': self.tm33t.pk})
+        self.assertEqual(200, res.status_code)
+        self.assertTrue(Retm33t.objects.filter(tm33t_retm33ted=self.tm33t).exists())
+
+
+class Unretm33tTests(TestCase):
+    def setUp(self):
+        self.user = create_user_by_id(self, 'User')
+        self.tm33t_poster = create_user_by_id(self, 'Tm33tPoster')
+        # user login
+        self.client.login(username=self.user.username, password=PASSWORD)
+        # 元のツイート
+        self.tm33t = Tm33t.objects.create(poster=self.tm33t_poster, content=create_text(self, 1))
+        self.url = reverse('tmitt3r:unretm33t')
+    
+    def test_unretm33t_post(self):
+        """
+        Unretm33tビューにTm33tのpkをPOSTすると、そのTm33tのRetm33tを削除する。
+        """
+        Retm33t.objects.create(poster=self.user, tm33t_retm33ted=self.tm33t)
+        res = self.client.post(self.url, data={'pk': self.tm33t.pk})
+        self.assertEqual(200, res.status_code)
+        self.assertFalse(Retm33t.objects.filter(poster=self.user, tm33t_retm33ted=self.tm33t).exists())
