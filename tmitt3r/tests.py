@@ -241,6 +241,42 @@ class Unretm33tTests(TestCase):
 
 
 # Custom template tag tests
+class Retm33tStateTemplateTagTests(TestCase):
+    def setUp(self):
+        self.user = create_user_by_id(self, 'User')
+        self.client.login(username=self.user.username, password=PASSWORD)
+        self.poster = create_user_by_id(self, 'Poster')
+        self.tm33t = Tm33t.objects.create(poster=self.poster) # 使うtm33t
+    
+    def test_retm33t_state_rendering(self):
+        """
+        ユーザーがretm33tしたtm33tに対しては、retm33t_stateテンプレートタグは
+        retm33tedという文字列を返す
+        """
+        Retm33t.objects.create(poster=self.user, tm33t_retm33ted=self.tm33t)
+        context = Context({'tm33t': self.tm33t, 'user': self.user})
+        template_to_render = Template(
+            '{% load tm33t_state %}'
+            '{% retm33t_state tm33t user %}'
+        )
+        rendered_template = template_to_render.render(context)
+        self.assertInHTML('retm33ted', rendered_template)
+    
+    def test_retm33t_state_rendering(self):
+        """
+        ユーザーがretm33tしていないtm33tに対しては、retm33t_stateテンプレートタグは
+        unretm33tedという文字列を返す
+        """
+        Retm33t.objects.filter(poster=self.user, tm33t_retm33ted=self.tm33t).delete()
+        context = Context({'tm33t': self.tm33t, 'user': self.user})
+        template_to_render = Template(
+            '{% load tm33t_state %}'
+            '{% retm33t_state tm33t user %}'
+        )
+        rendered_template = template_to_render.render(context)
+        self.assertInHTML('unretm33ted', rendered_template)
+
+
 class LikeStateTemplateTagTests(TestCase):
     def setUp(self):
         self.user = create_user_by_id(self, 'User')
