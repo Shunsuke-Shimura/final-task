@@ -36,15 +36,9 @@
             <i class="fas fa-retweet {{ tm33t|retm33t_state:request.user }}"></i>
         </button>
         <!-- like -->
-        {% if tm33t.state == 'like' %}
-        <button type="button" onclick="tm33tLikeAjax(this)" data-state="like" data-tm33t-pk="{{ tm33t.pk }}">
-            <i class="fas fa-heart heart like"></i>
+        <button type="button" onclick="tm33tLikeAjax(this)" data-state="{% like_state tm33t request.user as likeState %}" data-tm33t-pk="{{ tm33t.pk }}">
+            <i class="fas fa-heart heart {{ likeState }}"></i>
         </button>
-        {% else %}
-        <button type="button" onclick="tm33tLikeAjax(this)" data-state="unlike" data-tm33t-pk="{{ tm33t.pk }}">
-            <i class="far fa-heart heart"></i>
-        </button>
-        {% endif %}
     </div>
 </div>
 {% endblock %}
