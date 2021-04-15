@@ -2,6 +2,7 @@ from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
+from django.template import Context, Template
 from .models import Tm33t, Reply, Retm33t
 import time
 
@@ -237,3 +238,40 @@ class Unretm33tTests(TestCase):
         res = self.client.post(self.url, data={'pk': self.tm33t.pk})
         self.assertEqual(200, res.status_code)
         self.assertFalse(Retm33t.objects.filter(poster=self.user, tm33t_retm33ted=self.tm33t).exists())
+
+
+# Custom template tag tests
+class LikeStateTemplateTagTests(TestCase):
+    def setUp(self):
+        self.user = create_user_by_id(self, 'User')
+        self.client.login(username=self.user.username, password=PASSWORD)
+        self.poster = create_user_by_id(self, 'Poster')
+    
+    def test_like_state_rendering(self):
+        """
+        ユーザーがlikeしたtm33tに対しては、like_stateテンプレートタグは
+        likeという文字列を返す
+        """
+        tm33t = Tm33t.objects.create(poster=self.poster) # likeされたtm33t
+        tm33t.users_liked.add(self.user)
+        context = Context({'tm33t': tm33t, 'user': self.user})
+        template_to_render = Template(
+            '{% load tm33t_state %}'
+            '{% like_state tm33t user %}'
+        )
+        rendered_template = template_to_render.render(context)
+        self.assertInHTML('like', rendered_template)
+    
+    def test_unlike_state_rendering(self):
+        """
+        ユーザーがlikeしていないtm33tに対しては、like_stateテンプレートタグは
+        unlikeという文字列を返す
+        """
+        tm33t = Tm33t.objects.create(poster=self.poster) # unlikeなtm33t
+        context = Context({'tm33t': tm33t, 'user': self.user})
+        template_to_render = Template(
+            '{% load tm33t_state %}'
+            '{% like_state tm33t user %}'
+        )
+        rendered_template = template_to_render.render(context)
+        self.assertInHTML('unlike', rendered_template)
