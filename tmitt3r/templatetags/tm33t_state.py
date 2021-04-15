@@ -2,7 +2,7 @@ from django import template
 
 register = template.Library()
 
-@register.filter
+@register.simple_tag
 def retm33t_state(tm33t, user):
     """Returns tm33t's retm33t state as string (retm33ted or unretm33ted)"""
     if tm33t.has_been_retm33ted(user):
