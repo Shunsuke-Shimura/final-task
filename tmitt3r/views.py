@@ -8,15 +8,6 @@ from django.views.generic.base import View
 from django.urls import reverse_lazy
 from .models import Reply, Tm33t, Retm33t
 
-def add_like_state(queryset, user):
-    # tm33tをcontextに渡す場合にはstateアトリビュートをつける
-    for tm33t in queryset:
-        if tm33t.has_been_liked(user):
-            tm33t.state = 'like'
-        else:
-            tm33t.state = 'unlike'
-    return queryset
-
 
 def index(request):
     return render(request, 'tmitt3r/index.html')
@@ -31,7 +22,6 @@ class HomeView(LoginRequiredMixin, ListView):
         ログイン中のユーザーの最近の10個のツイートを取得
         """
         queryset = Tm33t.objects.filter(poster=self.request.user).order_by('-post_time')[:10]
-        queryset = add_like_state(queryset, self.request.user)
         return queryset
 
 
