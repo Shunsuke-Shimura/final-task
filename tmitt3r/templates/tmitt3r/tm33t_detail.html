@@ -32,8 +32,8 @@
             <i class="fas fa-reply"></i>
         </a>
         <!-- retm33t -->
-        <button onclick="retm33tAjax(this)" data-state="{{ tm33t|retm33t_state:request.user }}" data-tm33t-pk="{{ tm33t.pk }}">
-            <i class="fas fa-retweet {{ tm33t|retm33t_state:request.user }}"></i>
+        <button onclick="retm33tAjax(this)" data-state="{% retm33t_state tm33t request.user as retm33tState %}" data-tm33t-pk="{{ tm33t.pk }}">
+            <i class="fas fa-retweet {{ retm33tState }}"></i>
         </button>
         <!-- like -->
         <button type="button" onclick="tm33tLikeAjax(this)" data-state="{% like_state tm33t request.user as likeState %}" data-tm33t-pk="{{ tm33t.pk }}">
