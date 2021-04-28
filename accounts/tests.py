@@ -13,16 +13,6 @@ def create_userdata(username, password=sample_password):
     return {'username': username, 'password1': password, 'password2': password}
 
 
-no_csrf_middleware = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-
 class UserCreationFormTests(TestCase):
     def test_username_clean_success(self):
         """
@@ -76,7 +66,6 @@ class LoginViewTests(TestCase):
         response = self.client.get(self.url)
         self.assertTrue(isinstance(response.context['form'], AuthenticationForm))
 
-    @override_settings(MIDDLEWARE=no_csrf_middleware)
     def test_user_login_post(self):
         """
         正しい情報を持ったpostメソッドに対しては、
@@ -118,7 +107,6 @@ class FollowsModelTests(TestCase):
             Follows.objects.create(actor=self.user, followed_user=self.u1)
 
 
-@override_settings(MIDDLEWARE=no_csrf_middleware)
 class FollowsFeatureTests(TestCase):
     def setUp(self):
         self.username = 'UserDetailViewTest'

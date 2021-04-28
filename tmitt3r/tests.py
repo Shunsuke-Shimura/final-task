@@ -6,14 +6,6 @@ from django.template import Context, Template
 from .models import Tm33t, Reply, Retm33t
 import time
 
-no_csrf_middleware = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
 
 PASSWORD = 'SamplePassword'
 
@@ -53,7 +45,6 @@ class HomeViewTests(TestCase):
             self.assertEqual(queryset[i].content, self.text_list[i])    
 
 
-@override_settings(MIDDLEWARE=no_csrf_middleware)
 class Tm33tViewTests(TestCase):
     def setUp(self):
         self.username = 'Tm33tViewTest'
@@ -142,7 +133,6 @@ class Tm33tModelTests(TestCase):
         self.assertFalse(self.t1.is_retm33t())
 
 
-@override_settings(MIDDLEWARE=no_csrf_middleware)
 class Tm33tLikeFeatureTests(TestCase):
     def setUp(self):
         # create users
