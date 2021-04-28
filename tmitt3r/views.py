@@ -44,10 +44,6 @@ class Tm33tDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         tm33t = context.get('tm33t')
-        if tm33t.has_been_liked(self.request.user):
-            tm33t.state = 'like'
-        else:
-            tm33t.state = 'unlike'
         context['tm33t'] = tm33t
         return context
 
@@ -69,6 +65,7 @@ class Tm33tLikeView(LoginRequiredMixin, View):
         else:
             tm33t.users_liked.remove(request.user)
         return JsonResponse({"state": "OK"})
+
 
 class Tm33tReplyView(LoginRequiredMixin, CreateView):
     model = Reply
