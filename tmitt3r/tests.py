@@ -17,20 +17,18 @@ def create_user_by_id(obj, id):
 def create_text(obj, id):
     return 'This is ' + obj.__class__.__name__ + str(id) + ' Sample Text.'
 
-
+# class based view tests
 class HomeViewTests(TestCase):
     def setUp(self):
-        username = 'HomeViewTestClient'
-        password = 'SamplePassword'
+        username = 'HomeViewTest'
         self.user = User.objects.create_user(username=username, 
-                                             password=password)
-        self.client.login(username=username, password=password)
+                                             password=PASSWORD)
+        self.client.login(username=username, password=PASSWORD)
         self.text_list = []
         for i in range(20):
             text = 'This is HomeViewTest Tm33t text No.{}.'.format(i)
             Tm33t.objects.create(poster=self.user, content=text)
             self.text_list.append(text)
-            time.sleep(0.1)
         self.text_list.reverse()
     
     def test_home_view_context(self):
@@ -42,7 +40,7 @@ class HomeViewTests(TestCase):
         res = self.client.get(reverse('tmitt3r:home'))
         queryset = res.context['latest_tm33t_list']
         for i in range(10):
-            self.assertEqual(queryset[i].content, self.text_list[i])    
+            self.assertEqual(queryset[i].content, self.text_list[i])
 
 
 class Tm33tViewTests(TestCase):
