@@ -118,7 +118,18 @@ class Tm33tLikeViewTests(TestCase):
         res = self.client.post(self.url, data={'pk': self.tm33t.pk})
         self.assertEqual(200, res.status_code)
         json_decoded_response = json.loads(res.content)
-        self.assertEqual(json_decoded_response.get('result'), 'Invalid Post Data')
+        self.assertEqual(json_decoded_response.get('result'), 'invalid post data')
+    
+    def test_like_tm33t_does_not_exist(self):
+        """
+        POSTメソッドで存在しないTm33tのpkを送ると
+        404エラーを返す。
+        """
+        tmp_tm33t = Tm33t.objects.create(poster=self.poster, content="")
+        pk = tmp_tm33t.pk
+        tmp_tm33t.delete()
+        res = self.client.post(self.url, data={'like': 'like', 'pk': pk})
+        self.assertEqual(404, res.status_code)
 
 
 class Tm33tReplyViewTests(TestCase):
