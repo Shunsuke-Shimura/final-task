@@ -53,18 +53,25 @@ class Tm33tLikeView(LoginRequiredMixin, View):
         return HttpResponseBadRequest('Tm33tをLikeするにはPOSTメソッドを使用してください。')
     
     def invalid_post(self, request, *args, **kwargs):
-        return HttpResponseBadRequest('不適切なPOSTデータです')
+        return JsonResponse({"result": "invalid post data"})
 
     def post(self, request, *args, **kwargs):
         pk = request.POST.get('pk')
         if pk is None:
             return self.invalid_post(request, *args, **kwargs)
         tm33t = get_object_or_404(Tm33t, pk=pk)
-        if request.POST.get('like') == 'like':
+        
+        like_attr = request.POST.get('like')
+        if like_attr == 'like':
             tm33t.users_liked.add(request.user)
-        else:
+            return JsonResponse({"result": "OK"})
+
+        if like_attr == 'unlike':
             tm33t.users_liked.remove(request.user)
-        return JsonResponse({"state": "OK"})
+            return JsonResponse({"result": "OK"})
+
+        return self.invalid_post(request, *args, **kwargs)
+        
 
 
 class Tm33tReplyView(LoginRequiredMixin, CreateView):
