@@ -75,68 +75,6 @@ class Tm33tViewTests(TestCase):
         self.assertTemplateUsed(res, 'tmitt3r/tm33t.html')
 
 
-class Tm33tModelTests(TestCase):
-    def setUp(self):
-        self.u1 = User.objects.create_user(username='Tm33tModelTests1')
-        self.u2 = User.objects.create_user(username='Tm33tModelTests2')
-        self.u3 = User.objects.create_user(username='Tm33tModelTest3')
-        self.t1 = Tm33t.objects.create(poster=self.u1, content=create_text(self, 1))
-
-    def test_has_been_liked(self):
-        """
-        has_been_liked メソッドのテスト
-        引数にはUserオブジェクトかusernameを取り、
-        users_likedに含まれていればTrueを返す。
-        """
-        self.t1.users_liked.add(self.u2)
-        self.assertTrue(self.t1.has_been_liked(self.u2))
-        self.assertFalse(self.t1.has_been_liked(self.u3))
-        self.assertTrue(self.t1.has_been_liked(self.u2.get_username()))
-        self.assertFalse(self.t1.has_been_liked(self.u3.get_username()))
-        self.t1.users_liked.remove(self.u2)
-        self.assertFalse(self.t1.has_been_liked(self.u2))
-    
-    def test_is_reply(self):
-        """
-        Tm33tオブジェクトがReplyに継承されたものである場合に
-        is_reply() はTrueを返す
-        """
-        text = create_text(self, 2)
-        # Replyオブジェクトとして作成
-        reply = Reply.objects.create(poster=self.u1, related_tm33t=self.t1, content=text)
-        # tm33tオブジェクトとして取得
-        tm33t = Tm33t.objects.get(content=text)
-        self.assertTrue(reply.is_reply())
-        self.assertTrue(tm33t.is_reply())
-    
-    def test_is_not_reply(self):
-        """
-        Tm33tオブジェクトがReplyでない場合には
-        is_reply()はFalseを返す
-        """
-        self.assertFalse(self.t1.is_reply())
-    
-    def test_is_retm33t(self):
-        """
-        Tm33tオブジェクトがRetm33tに継承されたものである場合に
-        is_retm33t() はTrueを返す
-        """
-        text = create_text(self, 3)
-        # Replyオブジェクトとして作成
-        retm33t = Retm33t.objects.create(poster=self.u1, tm33t_retm33ted=self.t1, content=text)
-        # tm33tオブジェクトとして取得
-        tm33t = Tm33t.objects.get(content=text)
-        self.assertTrue(retm33t.is_retm33t())
-        self.assertTrue(tm33t.is_retm33t())
-    
-    def test_is_not_retm33t(self):
-        """
-        Tm33tオブジェクトがRetm33tでない場合には
-        is_retm33t()はFalseを返す
-        """
-        self.assertFalse(self.t1.is_retm33t())
-
-
 class Tm33tLikeFeatureTests(TestCase):
     def setUp(self):
         # create users
@@ -232,6 +170,69 @@ class Unretm33tTests(TestCase):
         res = self.client.post(self.url, data={'pk': self.tm33t.pk})
         self.assertEqual(200, res.status_code)
         self.assertFalse(Retm33t.objects.filter(poster=self.user, tm33t_retm33ted=self.tm33t).exists())
+
+
+# Django custom models tests
+class Tm33tModelTests(TestCase):
+    def setUp(self):
+        self.u1 = User.objects.create_user(username='Tm33tModelTests1')
+        self.u2 = User.objects.create_user(username='Tm33tModelTests2')
+        self.u3 = User.objects.create_user(username='Tm33tModelTest3')
+        self.t1 = Tm33t.objects.create(poster=self.u1, content=create_text(self, 1))
+
+    def test_has_been_liked(self):
+        """
+        has_been_liked メソッドのテスト
+        引数にはUserオブジェクトかusernameを取り、
+        users_likedに含まれていればTrueを返す。
+        """
+        self.t1.users_liked.add(self.u2)
+        self.assertTrue(self.t1.has_been_liked(self.u2))
+        self.assertFalse(self.t1.has_been_liked(self.u3))
+        self.assertTrue(self.t1.has_been_liked(self.u2.get_username()))
+        self.assertFalse(self.t1.has_been_liked(self.u3.get_username()))
+        self.t1.users_liked.remove(self.u2)
+        self.assertFalse(self.t1.has_been_liked(self.u2))
+    
+    def test_is_reply(self):
+        """
+        Tm33tオブジェクトがReplyに継承されたものである場合に
+        is_reply() はTrueを返す
+        """
+        text = create_text(self, 2)
+        # Replyオブジェクトとして作成
+        reply = Reply.objects.create(poster=self.u1, related_tm33t=self.t1, content=text)
+        # tm33tオブジェクトとして取得
+        tm33t = Tm33t.objects.get(content=text)
+        self.assertTrue(reply.is_reply())
+        self.assertTrue(tm33t.is_reply())
+    
+    def test_is_not_reply(self):
+        """
+        Tm33tオブジェクトがReplyでない場合には
+        is_reply()はFalseを返す
+        """
+        self.assertFalse(self.t1.is_reply())
+    
+    def test_is_retm33t(self):
+        """
+        Tm33tオブジェクトがRetm33tに継承されたものである場合に
+        is_retm33t() はTrueを返す
+        """
+        text = create_text(self, 3)
+        # Replyオブジェクトとして作成
+        retm33t = Retm33t.objects.create(poster=self.u1, tm33t_retm33ted=self.t1, content=text)
+        # tm33tオブジェクトとして取得
+        tm33t = Tm33t.objects.get(content=text)
+        self.assertTrue(retm33t.is_retm33t())
+        self.assertTrue(tm33t.is_retm33t())
+    
+    def test_is_not_retm33t(self):
+        """
+        Tm33tオブジェクトがRetm33tでない場合には
+        is_retm33t()はFalseを返す
+        """
+        self.assertFalse(self.t1.is_retm33t())
 
 
 # Custom template tag tests
