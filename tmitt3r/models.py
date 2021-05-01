@@ -8,8 +8,8 @@ class Tm33t(models.Model):
     users_liked = models.ManyToManyField(User, related_name='tm33ts_liked')
 
     def __str__(self):
-        length = (len(self.content) - 1) if (len(self.content) < 20) else 18
-        return repr(self.content[:length])
+        truncated_content = repr(self.content[:20]) + ('...' if len(self.content) > 20 else '')
+        return truncated_content
 
     def has_been_liked(self, user):
         if isinstance(user, User):
@@ -24,7 +24,7 @@ class Tm33t(models.Model):
     
     def is_reply(self):
         return hasattr(self, 'reply')
-
+    
     def is_retm33t(self):
         return hasattr(self, 'retm33t')
 
