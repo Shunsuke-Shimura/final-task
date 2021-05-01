@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.template import Context, Template
 from .models import Tm33t, Reply, Retm33t
-import time
+import json
 
 
 PASSWORD = 'SamplePassword'
@@ -75,41 +75,50 @@ class Tm33tViewTests(TestCase):
         self.assertTemplateUsed(res, 'tmitt3r/tm33t.html')
 
 
-class Tm33tLikeFeatureTests(TestCase):
+class Tm33tLikeViewTests(TestCase):
     def setUp(self):
-        # create users
-        self.user = create_user_by_id(self, 'User')
-        self.poster = create_user_by_id(self, 'Poster')
-        # create target tm33t
-        self.text1 = create_text(self, 1)
-        self.text2 = create_text(self, 2)
-        self.tm33t1 = Tm33t.objects.create(poster=self.poster, content=self.text1)
-        self.tm33t2 = Tm33t.objects.create(poster=self.poster, content=self.text2)
-        # user login
+        # Like/UnlikeするUser
+        self.user = User.objects.create_user(username='LoginUser', password=PASSWORD)
+
+        # テスト対象のTm33tのposter
+        self.poster = User.objects.create_user(username='Tm33tPoster', password=PASSWORD)
+
+        self.tm33t = Tm33t.objects.create(poster=self.poster, content="")
+
         self.client.login(username=self.user.username, password=PASSWORD)
-        # post target url
-        self.url = reverse('tmitt3r:like')
+        self.url = reverse('tmitt3r:like') # post target url
 
     def test_like_post(self):
         """
-        Tm33tDetailViewのURLにpostメソッドで適切なデータを与えると
+        Tm33tDetailViewのURLにpostメソッドでlike='like'と対象ツイートのpkを与えると
         そのユーザーが対象のツイートにライクする。
         """
-        res = self.client.post(self.url, data={'like': 'like', 'pk': self.tm33t1.pk})
+        res = self.client.post(self.url, data={'like': 'like', 'pk': self.tm33t.pk})
         self.assertEqual(200, res.status_code)
-        self.assertTrue(self.tm33t1.users_liked.filter(username=self.user.username).exists())
+        self.assertTrue(self.tm33t.users_liked.filter(username=self.user.username).exists())
 
     def test_unlike_post(self):
         """
-        Tm33tDetailViewのURLにpostメソッドで適切なデータを与えると
+        Tm33tDetailViewのURLにpostメソッドでlike='unlike'と対象ツイートのpkを与えると
         そのユーザーが対象のツイートのライクを外す。
         """
-        self.tm33t2.users_liked.add(self.user)
-        self.assertTrue(self.tm33t2.users_liked.filter(username=self.user.username).exists())
-        # tm33t2に対するUnlike
-        res = self.client.post(self.url, data={'like': 'unlike', 'pk': self.tm33t2.pk})
+        self.tm33t.users_liked.add(self.user)
+        self.assertTrue(self.tm33t.users_liked.filter(username=self.user.username).exists())
+
+        # tm33tに対するUnlike
+        res = self.client.post(self.url, data={'like': 'unlike', 'pk': self.tm33t.pk})
         self.assertEqual(200, res.status_code)
-        self.assertFalse(self.tm33t2.users_liked.filter(username=self.user.username).exists())
+        self.assertFalse(self.tm33t.users_liked.filter(username=self.user.username).exists())
+    
+    def test_unlike_post(self):
+        """
+        POSTメソッドでlikeデータを送信しないとJSONの
+        {"result" : "Invalid Post Data"} が返る。
+        """
+        res = self.client.post(self.url, data={'pk': self.tm33t.pk})
+        self.assertEqual(200, res.status_code)
+        json_decoded_response = json.loads(res.content)
+        self.assertEqual(json_decoded_response.get('result'), 'Invalid Post Data')
 
 
 class Tm33tReplyViewTests(TestCase):
