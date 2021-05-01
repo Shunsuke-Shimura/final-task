@@ -134,23 +134,31 @@ class Tm33tLikeViewTests(TestCase):
 
 class Tm33tReplyViewTests(TestCase):
     def setUp(self):
-        self.user = create_user_by_id(self, 'User')
-        self.tm33t_poster = create_user_by_id(self, 'Tm33tPoster')
-        # user login
+        self.user = User.objects.create_user(username='LoginUser', password=PASSWORD)
+        self.poster = User.objects.create_user(username='Tm33tPoster', password=PASSWORD)
+
         self.client.login(username=self.user.username, password=PASSWORD)
-        # 元のツイート
-        self.tm33t = Tm33t.objects.create(poster=self.tm33t_poster, content=create_text(self, 1))
+        
+        self.tm33t = Tm33t.objects.create(poster=self.poster, content=create_text(self, 1))
         self.url = reverse('tmitt3r:reply', kwargs={'pk': self.tm33t.pk})
     
     def test_reply_post(self):
         """
         ReplyをPOSTするとホーム画面にリダイレクトされ、データベースに登録される。
         """
-        text = create_text(self, 2)
         redirect_url = reverse('tmitt3r:home')
+        text = "Sample Text for Reply POST."
         res = self.client.post(self.url, data={'content': text})
         self.assertRedirects(res, redirect_url)
         self.assertTrue(Reply.objects.filter(content=text).exists())
+    
+    def test_has_related_tm33t_as_context(self):
+        """
+        URLにGETリクエストを送ると、contextにReply対象のツイートが
+        related_tm33tとして付与される。
+        """
+        res = self.client.get(self.url, kwargs={'pk': self.tm33t.pk})
+        self.assertEqual(self.tm33t, res.context.get('related_tm33t'))
 
 
 class Retm33tViewTests(TestCase):
