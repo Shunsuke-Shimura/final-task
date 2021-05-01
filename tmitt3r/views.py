@@ -41,12 +41,6 @@ class Tm33tDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'tm33t'
     template_name = 'tmitt3r/tm33t_detail.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        tm33t = context.get('tm33t')
-        context['tm33t'] = tm33t
-        return context
-
 
 class Tm33tLikeView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
