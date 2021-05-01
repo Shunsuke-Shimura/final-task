@@ -46,27 +46,33 @@ class HomeViewTests(TestCase):
 class Tm33tViewTests(TestCase):
     def setUp(self):
         self.username = 'Tm33tViewTest'
-        self.password = 'SamplePassword'
+        self.url = reverse('tmitt3r:tm33t')
         self.user = User.objects.create_user(username=self.username,
-                                             password=self.password)
-        self.client.login(username=self.username, password=self.password)
+                                             password=PASSWORD)
+        self.client.login(username=self.username, password=PASSWORD)
     
     def test_tm33t(self):
         """
         ツイートが成功するとデータベースに登録され、
         posterは投稿者に、post_timeは投稿時の時間になる。
         """
-        url = reverse('tmitt3r:tm33t')
         text = 'This is sample tm33t for Tm33tViewTest.'
         data = {'content': text}
         time = timezone.now()
-        self.client.post(url, data=data)
+        self.client.post(self.url, data=data)
         tm33t = Tm33t.objects.filter(
                             poster__username=self.username
                         ).get(
                             post_time__gte=time
                         )
         self.assertEqual(tm33t.content, text)
+
+    def test_tm33t_with_blank_content(self):
+        """
+        空白の内容をPOSTリクエストすると、同じ画面に再アクセスさせる。
+        """
+        res = self.client.post(self.url, data={'content': ""})
+        self.assertTemplateUsed(res, 'tmitt3r/tm33t.html')
 
 
 class Tm33tModelTests(TestCase):
