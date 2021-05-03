@@ -163,12 +163,12 @@ class Tm33tReplyViewTests(TestCase):
 
 class Retm33tViewTests(TestCase):
     def setUp(self):
-        self.user = create_user_by_id(self, 'User')
-        self.tm33t_poster = create_user_by_id(self, 'Tm33tPoster')
-        # user login
+        self.user = User.objects.create_user(username='User2Retm33t', password=PASSWORD)
+        self.poster = User.objects.create_user(username='TargetTm33tPoster', password=PASSWORD)
+
         self.client.login(username=self.user.username, password=PASSWORD)
-        # 元のツイート
-        self.tm33t = Tm33t.objects.create(poster=self.tm33t_poster, content=create_text(self, 1))
+        
+        self.tm33t = Tm33t.objects.create(poster=self.poster, content=create_text(self, 1))
         self.url = reverse('tmitt3r:retm33t')
     
     def test_retm33t_post(self):
