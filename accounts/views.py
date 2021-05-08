@@ -8,8 +8,11 @@ from django.views.generic.edit import FormView
 from django.views.generic.detail import DetailView
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-from .models import Follows
-from .forms import FollowForm, UnfollowForm
+from rest_framework import generics
+from accounts.serializers import FollowsSerializer
+from accounts.permissions import IsActor
+from accounts.models import Follows
+from accounts.forms import FollowForm, UnfollowForm
 
 
 class SignUpView(FormView):
@@ -81,3 +84,17 @@ class UnfollowView(LoginRequiredMixin, FormView):
     
     def get_success_url(self):
         return reverse('accounts:profile', kwargs={'pk': self.target_user.pk})
+
+class FollowsDetail(generics.CreateAPIView, generics.DestroyAPIView):
+    serializer_class = FollowsSerializer
+    queryset = Follows.objects.all()
+    permission_classes = [IsActor]
+
+    def get_object(self):
+        followed_user = get_object_or_404(User, pk=self.request.data.get('followed_user'))
+        obj = get_object_or_404(self.get_queryset(), actor=self.request.user, followed_user=followed_user)
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    def perform_create(self, serializer):
+        serializer.save(actor=self.request.user)
