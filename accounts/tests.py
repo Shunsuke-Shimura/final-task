@@ -8,7 +8,7 @@ from django.conf import settings
 from .models import Follows
 
 
-sample_password = 'SamplePassword'
+PASSWORD = sample_password = 'SamplePassword'
 def create_userdata(username, password=sample_password):
     return {'username': username, 'password1': password, 'password2': password}
 
@@ -142,3 +142,31 @@ class FollowsFeatureTests(TestCase):
         own_url = reverse('accounts:profile', kwargs={'pk': self.user.pk})
         self.client.post(own_url, data={'username': str(self.user)})
         self.assertFalse(Follows.objects.filter(actor=self.user, followed_user=self.user).exists())
+
+
+class FollowsDetailTests(TestCase):
+    def setUp(self):
+        self.user_following = User.objects.create_user(username="UserFollowing", password=PASSWORD)
+        self.user_followed = User.objects.create_user(username="UserFollowed", password=PASSWORD)
+
+        self.client.login(username=self.user_following.username, password=PASSWORD)
+
+        self.url = reverse('accounts:follows')
+    
+    def test_follows_create(self):
+        """
+        '/accounts/follows/' に対してPOSTリクエストでフォローするユーザーの
+        pkを送ると、status_code 201を返しFollowsを作成する。
+        """
+        res = self.client.post(self.url, data={'followed_user' : self.user_followed.pk})
+        self.assertEqual(201, res.status_code)
+        self.assertTrue(Follows.objects.filter(actor=self.user_following, followed_user=self.user_followed).exists())
+
+    def test_follows_delete(self):
+        """
+        DELETEメソッドに対しては、status_code 204を返しFollowsを削除する。
+        """
+        Follows.objects.create(actor=self.user_following, followed_user=self.user_followed)
+        res = self.client.delete(self.url, content_type='application/json', data={'followed_user': self.user_followed.pk})
+        self.assertEqual(204, res.status_code)
+        self.assertFalse(Follows.objects.filter(actor=self.user_following, followed_user=self.user_followed).exists())
